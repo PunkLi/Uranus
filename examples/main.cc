@@ -4,8 +4,8 @@
  */
 
 #include <iostream>
-#include "Matrix.hpp"
-#include "Function.hpp"
+#include "uranus/Matrix.hpp"
+#include "uranus/Function.hpp"
 
 int main(int argc, char *argv[])
 {

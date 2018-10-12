@@ -12,10 +12,20 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CURRENT_PROJET_DIR}/build/lib)
 
 include_directories(
     /usr/local/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/uranus
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 add_library(uranus
-    uranus/Matrix.hpp
-    uranus/Function.hpp
+    include/uranus/Matrix.hpp
+    include/uranus/Function.hpp
 )
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples)
+
+enable_testing()
+    add_executable(matrix_unittest 
+        test/matrix_unittest.cc
+    )
+    target_link_libraries(matrix_unittest  ${GTEST_BOTH_LIBRARIES})
+    
+add_test(uranus matrix_unittest)
