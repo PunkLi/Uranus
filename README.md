@@ -1,12 +1,18 @@
 # Uranus
-为了致敬1801年9月高斯用数学方法预测并发现了谷神星（Ceres）。谷歌开发了[ceres-solver](https://github.com/ceres-solver/ceres-solver)。
+为了致敬1801年9月高斯用数学方法预测并发现了谷神星（Ceres），谷歌将自己开发的数学库命名为[ceres-solver](https://github.com/ceres-solver/ceres-solver)。
 
-我们想像`ceres-solver`那样，实现一个简单的数学库，目前只用于：
-- `AI5281L`软件工程大作业
-- `AI5276L`最优化及其应用大作业
-- `AI5278L`模式识别大作业
+> Ceres Solver is an open source C++ library for modeling and solving large, complicated optimization problems. It is a feature rich, mature and performant library which has been used in production at Google since 2010. Ceres Solver can solve two kinds of problems.
+>1. Non-linear Least Squares problems with bounds constraints.
+>2. General unconstrained optimization problems.
+
+我们希望实现一个小型数学库作为`AI5281L软件工程`这门课程的大作业，同时希望该库能够用于解决本学期其他学院选修课程的相关问题：
+
+- `AI5276L`最优化及其应用
+- `AI5278L`模式识别
 
 我们的项目以“海王星（Uranus）”为名，因为`Uranus`也是一颗“被发现”的星体。
+
+> 海王星是太阳系中距离太阳最远的行星，在1846年9月23日被发现，是唯一利用数学预测而非有计划的观测发现的行星。天文学家利用天王星轨道的摄动推测出海王星的存在与可能的位置。
 
 ## Dependencies
 - 代码构建：[CMake](https://cmake.org/)
@@ -14,9 +20,7 @@
 - 软件测试：[googetest](https://github.com/google/googletest.git)
 - 文档生成：[doxygen](http://www.doxygen.org/)
 - 数据存储：[Protocol](https://developers.google.com/protocol-buffers/)
-
-## To-do List
-该数学库的实现标准是能够正常使用并解决模式识别(AI5278L)的课程的大作业。
+- 集成测试：[travis-CI](https://travis-ci.org/)
 
 ## License
 
