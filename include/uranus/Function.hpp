@@ -23,7 +23,7 @@
 #ifndef _FUNCTION_HPP_
 #define _FUNCTION_HPP_
 
-#include <Matrix.hpp>
+#include "Matrix.hpp"
 
 namespace uranus {
     /**

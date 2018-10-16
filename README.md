@@ -5,7 +5,7 @@
 >1. Non-linear Least Squares problems with bounds constraints.
 >2. General unconstrained optimization problems.
 
-我们希望实现一个小型数学库作为`AI5281L软件工程`这门课程的大作业，同时希望该库能够用于解决本学期其他学院选修课程的相关问题：
+我们希望实现一个小型数学库作为`AI5281L`软件工程这门课程的大作业，同时希望该库能够用于解决本学期其他学院选修课程的相关问题：
 
 - `AI5276L`最优化及其应用
 - `AI5278L`模式识别
@@ -15,12 +15,13 @@
 > 海王星是太阳系中距离太阳最远的行星，在1846年9月23日被发现，是唯一利用数学预测而非有计划的观测发现的行星。天文学家利用天王星轨道的摄动推测出海王星的存在与可能的位置。
 
 ## Dependencies
-- 代码构建：[CMake](https://cmake.org/)
-- 线性代数：[Eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page)
-- 软件测试：[googetest](https://github.com/google/googletest.git)
-- 文档生成：[doxygen](http://www.doxygen.org/)
-- 数据存储：[Protocol](https://developers.google.com/protocol-buffers/)
-- 集成测试：[travis-CI](https://travis-ci.org/)
+- 代码构建：https://cmake.org/
+- 线性代数：http://eigen.tuxfamily.org/index.php?title=Main_Page
+- 文档生成：http://www.doxygen.org/
+- 日志系统：https://github.com/google/glog
+- 数据存储：https://developers.google.com/protocol-buffers/
+- 单元测试：https://github.com/google/googletest.git
+- 集成测试：https://travis-ci.org/
 
 ## License
 
