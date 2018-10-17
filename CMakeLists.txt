@@ -49,7 +49,8 @@ set(HEADERS
 
 # Examples
 if(URANUS_BUILD_EXAMPLES)
-    add_executable(example_1 "examples/main.cc")
+    add_executable(example_1 "examples/Newton.cc")
+    add_executable(example_2 "examples/Fisher.cc")
 endif()
 
 # Unit Tests

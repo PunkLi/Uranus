@@ -25,7 +25,7 @@ install:
 - sudo apt-get install libeigen3-dev
 
 script:
-- mkdir build
-- cd build
+- mkdir build && cd build
 - cmake .. && make
 - ./example_1
+- ./example_2
