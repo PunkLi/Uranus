@@ -50,7 +50,7 @@ set(HEADERS
 # Examples
 if(URANUS_BUILD_EXAMPLES)
     add_executable(example_1 "examples/Newton.cc")
-    add_executable(example_2 "examples/Fisher.cc")
+    add_executable(example_2 "examples/Pattern Recognition/Fisher.cc")
 endif()
 
 # Unit Tests
