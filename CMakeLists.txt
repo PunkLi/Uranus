@@ -17,7 +17,6 @@ option(URANUS_BUILD_EXAMPLES "Build the Uranus examples" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-find_package(GTest REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 set(CURRENT_PROJET_DIR ${CMAKE_CURRENT_SOURCE_DIR})
