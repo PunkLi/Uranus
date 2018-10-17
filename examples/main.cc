@@ -27,7 +27,5 @@ int main(int argc, char *argv[])
 
 	std::cout << "x1= \n" << x1; 
 
-	std::cin.get();
-
 	return EXIT_SUCCESS;
 }
