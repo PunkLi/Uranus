@@ -1,4 +1,11 @@
 # Uranus
+[![Build Status](https://travis-ci.org/hackath/Uranus.svg?branch=master)](https://travis-ci.org/hackath/Uranus)
+[![License: MIT](./docs/license_badge.svg)](./LICENSE)
+
+A tiny library for solving math and optimization problem.
+
+## Why Uranus?
+
 为了致敬1801年9月高斯用数学方法预测并发现了谷神星（Ceres），谷歌将自己开发的数学库命名为[ceres-solver](https://github.com/ceres-solver/ceres-solver)。
 
 > Ceres Solver is an open source C++ library for modeling and solving large, complicated optimization problems. It is a feature rich, mature and performant library which has been used in production at Google since 2010. Ceres Solver can solve two kinds of problems.
