@@ -4,9 +4,9 @@ dist: trusty
 compiler:
 - clang
 - gcc
-env:
-- EIGEN=3.2.9
-- EIGEN=3.3-beta2
+# env:
+# - EIGEN=3.2.9
+# - EIGEN=3.3-beta2
 
 # addons:
 #   apt:
