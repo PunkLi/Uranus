@@ -82,8 +82,12 @@ int main(int argc, char *argv[])
 	using namespace std;
 	const int batch_size = 10;
 
-	std::vector<uranus::Vector<3>> x_set1(batch_size);  // 10组，3维数，class1
-	std::vector<uranus::Vector<3>> x_set2(batch_size);  // 10组，3维数，class2
+	int size = 0;
+	int size2 = 0;
+	constexpr int Dim = 3;
+
+	std::vector<uranus::Vector<Dim>> x_set1(batch_size);  // 10组，3维数，class1
+	std::vector<uranus::Vector<Dim>> x_set2(batch_size);  // 10组，3维数，class2
 
 	x_set1[0] << -0.4, 0.58, 0.089;
 	x_set1[1] << -0.31, 0.27, -0.04;
@@ -109,13 +113,13 @@ int main(int argc, char *argv[])
 
 	//cout << x_set1[0];
 
-	uranus::Vector<3> mean_1;
+	uranus::Vector<Dim> mean_1;
 	mean_1 << 0, 0, 0;
-	uranus::Vector<3> mean_2;
+	uranus::Vector<Dim> mean_2;
 	mean_2 << 0, 0, 0;
-	uranus::SquareMatrix<3> Si_1;
+	uranus::SquareMatrix<Dim> Si_1;
 	Si_1 << 0, 0, 0, 0, 0, 0, 0, 0, 0;
-	uranus::SquareMatrix<3> Si_2;
+	uranus::SquareMatrix<Dim> Si_2;
 	Si_2 << 0, 0, 0, 0, 0, 0, 0, 0, 0;
 	
 	// step1 均值向量
@@ -136,19 +140,19 @@ int main(int argc, char *argv[])
 
 	// step3
 	// 总样本类内离散度矩阵Sw  对称半正定矩阵，而且当n>d时通常是非奇异的
-	uranus::SquareMatrix<3> Sw = Si_1 + Si_2;
+	uranus::SquareMatrix<Dim> Sw = Si_1 + Si_2;
 	cout << "Sw=\n" << Sw << endl << endl;
 
 	// step4
 	// 样本类间离散度矩阵SB
-	uranus::SquareMatrix<3> Sb = (mean_1 - mean_2) * (mean_1 - mean_2).transpose();
+	uranus::SquareMatrix<Dim> Sb = (mean_1 - mean_2) * (mean_1 - mean_2).transpose();
 
 	// step5
 	// Fisher准则函数 -- 最佳投影方向
-	// uranus::SquareMatrix<3> Jw = Sb*Sw.inverse();
+	// uranus::SquareMatrix<Dim> Jw = Sb*Sw.inverse();
 	// w* = \argmax J(w)
 
-	uranus::Vector<3> argW = Sw.inverse()*(mean_1 - mean_2);
+	uranus::Vector<Dim> argW = Sw.inverse()*(mean_1 - mean_2);
 	cout << "argW=\n" << argW << endl << endl;
 
 

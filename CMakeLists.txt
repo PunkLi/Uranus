@@ -14,6 +14,7 @@ include(CTest)
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
 option(URANUS_BUILD_EXAMPLES "Build the Uranus examples" ON)
+# option(URANUS_BUILD_TESTING "Build the Uranus Unit Test" ON)
 
 # set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -51,6 +52,8 @@ set(HEADERS
 if(URANUS_BUILD_EXAMPLES)
     add_executable(example_1 "examples/Newton.cc")
     add_executable(example_2 "examples/Pattern Recognition/Fisher.cc")
+    add_executable(example_3 "examples/Pattern Recognition/Fisher-sonar.cc")
+    add_executable(example_4 "examples/Pattern Recognition/Fisher-Iris.cc")
 endif()
 
 # Unit Tests
@@ -59,7 +62,7 @@ set(TESTS
     test/matrix_unittest.cc
 )
 
-if(BUILD_TESTING)
+if(URANUS_BUILD_TESTING)
     enable_testing()
     add_subdirectory("gtest")
     include_directories("gtest/include")

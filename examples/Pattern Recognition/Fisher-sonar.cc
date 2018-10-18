@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 	int size = 0;
 	int size2 = 0;
 	constexpr int Dim = 60;
-	std::vector<uranus::Vector<Dim>> x_set1(97);   // 97组，60维数，class1
-	std::vector<uranus::Vector<Dim>> x_set2(111);  // 97组，60维数，class2
+	std::vector<uranus::Vector<Dim>> x_set1(97);   // 97组， 60维数，class1
+	std::vector<uranus::Vector<Dim>> x_set2(111);  // 111组，60维数，class2
 
 	x_set1[size++] << 0.0200, 0.0371, 0.0428, 0.0207, 0.0954, 0.0986, 0.1539, 0.1601, 0.3109, 0.2111, 0.1609, 0.1582, 0.2238, 0.0645, 0.0660, 0.2273, 0.3100, 0.2999, 0.5078, 0.4797, 0.5783, 0.5071, 0.4328, 0.5550, 0.6711, 0.6415, 0.7104, 0.8080, 0.6791, 0.3857, 0.1307, 0.2604, 0.5121, 0.7547, 0.8537, 0.8507, 0.6692, 0.6097, 0.4943, 0.2744, 0.0510, 0.2834, 0.2825, 0.4256, 0.2641, 0.1386, 0.1051, 0.1343, 0.0383, 0.0324, 0.0232, 0.0027, 0.0065, 0.0159, 0.0072, 0.0167, 0.0180, 0.0084, 0.0090, 0.0032;
 	x_set1[size++] << 0.0453, 0.0523, 0.0843, 0.0689, 0.1183, 0.2583, 0.2156, 0.3481, 0.3337, 0.2872, 0.4918, 0.6552, 0.6919, 0.7797, 0.7464, 0.9444, 1.0000, 0.8874, 0.8024, 0.7818, 0.5212, 0.4052, 0.3957, 0.3914, 0.3250, 0.3200, 0.3271, 0.2767, 0.4423, 0.2028, 0.3788, 0.2947, 0.1984, 0.2341, 0.1306, 0.4182, 0.3835, 0.1057, 0.1840, 0.1970, 0.1674, 0.0583, 0.1401, 0.1628, 0.0621, 0.0203, 0.0530, 0.0742, 0.0409, 0.0061, 0.0125, 0.0084, 0.0089, 0.0048, 0.0094, 0.0191, 0.0140, 0.0049, 0.0052, 0.0044;
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < size; ++i) mean_1 += x_set1[i];
 	mean_1 = mean_1 / size;
 	for (int i = 0; i < size2; ++i) mean_2 += x_set2[i];
-	mean_1 = mean_1 / size2;
+	mean_2 = mean_2 / size2;
 	
 	// step2 类内离散度矩阵
 	for (int i = 0; i < size; ++i)
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 
 	// step5
 	// Fisher准则函数 -- 最佳投影方向
-	// uranus::SquareMatrix<3> Jw = Sb*Sw.inverse();
+	// uranus::SquareMatrix<Dim> Jw = Sb*Sw.inverse();
 	// w* = \argmax J(w)
 
 	uranus::Vector<Dim> argW = Sw.inverse()*(mean_1 - mean_2);
@@ -279,8 +279,8 @@ int main(int argc, char *argv[])
 	cout << "Wo=\n" << W0 << endl << endl;
 
 	// step7线性变换
-	std::vector<uranus::Vector<1>> D1(batch_size);
-	std::vector<uranus::Vector<1>> D2(batch_size);
+	std::vector<uranus::Vector<1>> D1(size);
+	std::vector<uranus::Vector<1>> D2(size2);
 	for (int i = 0; i < batch_size; ++i)
 	{
 		D1[i] = argW.transpose()*x_set1[i];
