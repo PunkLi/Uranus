@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['matrix',['Matrix',['../classuranus_1_1_matrix.html',1,'uranus']]]
+  ['function',['Function',['../classuranus_1_1_function.html',1,'uranus']]]
 ];

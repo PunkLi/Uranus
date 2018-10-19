@@ -30,6 +30,24 @@ A tiny library for solving math and optimization problem.
 - 单元测试：https://github.com/google/googletest.git
 - 集成测试：https://travis-ci.org/
 
+## Setup Software
+```shell
+sudo apt-get install libeigen3-dev
+git clone https://github.com/hackath/Uranus.git
+git submodule update --init --recursive
+mkdir build && cd build
+cmake .. && make
+```
+## Documents
+克隆代码仓库，打开 `html/index.html` 查看[Doxygen](http://www.doxygen.org/)自动生成的代码文档。
+
+如果你要自定义构建文档，需要以下组件：
+- Doxygen
+- GraphViz
+- Html Help
+
+其他文档会陆续给出，以算法原理为主。
+
 ## License
 
 The MIT License (MIT)

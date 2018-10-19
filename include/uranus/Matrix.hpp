@@ -60,6 +60,28 @@ namespace uranus
 	 */
 	template<int N>
 	using SquareMatrix = Eigen::Matrix<double, N, N>;
-	
+
+	/**
+	 * @class uranus::setZeroMat
+	 * @brief set all element zero for vector or SquareMatrix
+	 * @param Type the input template
+	 * @param N The dimensionality of vector or SquareMatrix
+	 */
+	template<typename Type, int N>
+	inline bool setZeroMat(Type rhs)
+    {
+		if (std::is_same<Type, Vector<N>>::value)
+		{
+			for (int i = 0; i < N; ++i) rhs(i) = 0;
+			return true;
+		}
+		else if(std::is_same<Type, SquareMatrix<N>>::value)
+        {
+			for (int i = 0; i < N*N; ++i) rhs(i) = 0;
+			return true;
+		}
+		else
+			return false;
+    }
 }
 #endif
