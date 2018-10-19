@@ -14,14 +14,14 @@ int main(int argc, char *argv[])
 	using namespace std;
 
 	std::string path = "../data/UCI-Iris/iris.data";
-	uranus::Data_Wrapper wrapper(path); // 读文件
-	uranus::Tensor data(wrapper);
+	constexpr int feature_rows = 4;
+	std::vector<int> class_ = { 50,50,50 };
+	uranus::Data_Wrapper<feature_rows> wrapper(path, class_);
+	uranus::Tensor<feature_rows> data(wrapper, class_);
 
 	auto& x_set1 = data.tensor[0];
 	auto& x_set2 = data.tensor[1];
 	auto& x_set3 = data.tensor[2];
-
-	constexpr int feature_rows = 4;;
 
 	uranus::Vector<feature_rows> mean_1;
 	for (int i = 0; i < feature_rows; ++i)mean_1(i) = 0;
@@ -42,19 +42,19 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < feature_rows*feature_rows; ++i)Si_3(i) = 0;
 
 	// step1 均值向量
-	for (int i = 0; i < uranus::class_1; ++i) mean_1 += x_set1[i];
-	mean_1 = mean_1 / uranus::class_1;
-	for (int i = 0; i < uranus::class_2; ++i) mean_2 += x_set2[i];
-	mean_2 = mean_2 / uranus::class_2;
-	for (int i = 0; i < uranus::class_3; ++i) mean_3 += x_set3[i];
-	mean_3 = mean_3 / uranus::class_3;
+	for (int i = 0; i < class_[0]; ++i) mean_1 += x_set1[i];
+	mean_1 = mean_1 / class_[0];
+	for (int i = 0; i < class_[1]; ++i) mean_2 += x_set2[i];
+	mean_2 = mean_2 / class_[1];
+	for (int i = 0; i < class_[2]; ++i) mean_3 += x_set3[i];
+	mean_3 = mean_3 / class_[2];
 
 	// step2 类内离散度矩阵
-	for (int i = 0; i < uranus::class_1; ++i)
+	for (int i = 0; i < class_[0]; ++i)
 		Si_1 += (x_set1[i] - mean_1)*(x_set1[i] - mean_1).transpose();
-	for (int i = 0; i < uranus::class_2; ++i)
+	for (int i = 0; i < class_[1]; ++i)
 		Si_2 += (x_set2[i] - mean_2)*(x_set2[i] - mean_2).transpose();
-	for (int i = 0; i < uranus::class_3; ++i)
+	for (int i = 0; i < class_[2]; ++i)
 		Si_3 += (x_set3[i] - mean_3)*(x_set3[i] - mean_3).transpose();
 
 	cout << "Si_1=\n" << Si_1 << endl << endl;
@@ -92,21 +92,21 @@ int main(int argc, char *argv[])
 	uranus::Vector<1> W0_23 = argW_23.transpose()*mean_2 / 2 + argW_23.transpose()*mean_3 / 2;
 
 	// step7线性变换
-	std::vector<uranus::Vector<1>> D1(uranus::class_1);
-	std::vector<uranus::Vector<1>> D2(uranus::class_2);
-	std::vector<uranus::Vector<1>> D3(uranus::class_3);
+	std::vector<uranus::Vector<1>> D1(class_[0]);
+	std::vector<uranus::Vector<1>> D2(class_[1]);
+	std::vector<uranus::Vector<1>> D3(class_[2]);
 
 	// 1-2分类
 	cout << "1-2分类" << endl;
 	cout << "D1=" << endl;
-	for (int i = 0; i < uranus::class_1; ++i)
+	for (int i = 0; i < class_[0]; ++i)
 	{
 		D1[i] = argW_12.transpose()*x_set1[i];
 		cout << D1[i] << endl;
 	}
 	cout << "Wo_12=\n" << W0_12 << endl << endl;
 	cout << "D2=" << endl;
-	for (int i = 0; i < uranus::class_2; ++i)
+	for (int i = 0; i < class_[1]; ++i)
 	{
 		D2[i] = argW_12.transpose()*x_set2[i];
 		cout << D2[i] << endl;
@@ -114,14 +114,14 @@ int main(int argc, char *argv[])
 	// 1-3分类
 	cout << "1-3分类" << endl;
 	cout << "D1=" << endl;
-	for (int i = 0; i < uranus::class_1; ++i)
+	for (int i = 0; i < class_[0]; ++i)
 	{
 		D1[i] = argW_13.transpose()*x_set1[i];
 		cout << D1[i] << endl;
 	}
 	cout << "Wo_13=\n" << W0_13 << endl << endl;
 	cout << "D3=" << endl;
-	for (int i = 0; i < uranus::class_3; ++i)
+	for (int i = 0; i < class_[2]; ++i)
 	{
 		D3[i] = argW_13.transpose()*x_set3[i];
 		cout << D3[i] << endl;
@@ -129,14 +129,14 @@ int main(int argc, char *argv[])
 	// 2-3分类
 	cout << "2-3分类" << endl;
 	cout << "D2=" << endl;
-	for (int i = 0; i < uranus::class_2; ++i)
+	for (int i = 0; i < class_[1]; ++i)
 	{
 		D2[i] = argW_23.transpose()*x_set2[i];
 		cout << D2[i] << endl;
 	}
 	cout << "Wo_23=\n" << W0_23 << endl << endl;
 	cout << "D3=" << endl;
-	for (int i = 0; i < uranus::class_3; ++i)
+	for (int i = 0; i < class_[2]; ++i)
 	{
 		D3[i] = argW_23.transpose()*x_set3[i];
 		cout << D3[i] << endl;

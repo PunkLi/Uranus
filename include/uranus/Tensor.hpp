@@ -26,26 +26,22 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <list>
+#include <numeric>
 
 #include "Matrix.hpp"
 
 namespace uranus
 {
 	// init
-	constexpr int sample_num = 150;      // 样本数量
-	constexpr int feature_rows = 4;      // feature 维数
-	constexpr int class_cols = 3;        // class   类数
-	constexpr int class_1 = 50;
-	constexpr int class_2 = 50;
-	constexpr int class_3 = 50;          // 这个位置需要进一步泛化
+	// constexpr int feature_rows = 4;      // feature 维数
 
     /**
 	 * @class uranus::Data_Wrapper
 	 * @brief read data form file
 	 */ 
-	class Data_Wrapper
+	template<int feature_rows> class Data_Wrapper
 	{
+		const int sample_num;
 	public:
 		using DataSet = std::vector<                    // vector of 
 						std::pair<std::vector<double>,  // feature cols [维度]
@@ -53,8 +49,9 @@ namespace uranus
 						> >;
 		DataSet buffer;
 
-		Data_Wrapper(std::string file_name)
-		{		
+		Data_Wrapper(std::string file_name, std::vector<int> vec)
+							:sample_num(accumulate(vec.begin(),vec.end(),0))
+		{
 			readData(file_name, buffer, feature_rows, sample_num);
 		}
 
@@ -117,7 +114,7 @@ namespace uranus
 	 * @brief vector of class , vector of sample, vector of sample Dim, 
      * such as [[[],[],[]], [[],[],[]], [[],[],[]] ]
 	 */ 
-	class Tensor
+	template<int feature_rows> class Tensor
 	{
 	public:
 		using DataSet = std::vector<                    // vector of 
@@ -129,31 +126,35 @@ namespace uranus
 
 			// 这是可以直接用在fisher里头的
 			std::vector<std::vector<sample>> tensor;
-		Tensor(){}
-		Tensor(Data_Wrapper& wrapper)
+		// Tensor(){}
+
+		Tensor(Data_Wrapper<feature_rows>& wrapper, std::vector<int> class_size)
 		{
-			getfromfile(wrapper);
+			getfromfile(wrapper, class_size);
 		}
+
         /**
          * @brief get buffer data form data_wrapper
          * @param reference of data_wrapper
          */
-		void getfromfile(Data_Wrapper& wrapper)
+		void getfromfile(Data_Wrapper<feature_rows>& wrapper, std::vector<int> class_size)
 		{
+			int size = class_size.size();
 			tensor.resize(feature_rows);
-			vec2vec(wrapper.buffer, feature_rows, tensor, 0, 0,   class_1);
-			vec2vec(wrapper.buffer, feature_rows, tensor, 1, class_1,  class_1+class_2);
-			vec2vec(wrapper.buffer, feature_rows, tensor, 2, class_1 + class_2, class_1 + class_2 + class_3);
+
+			vec2vec(wrapper.buffer, feature_rows,  // buffer 
+					tensor, 0,                     // tensor for 0
+					0, class_size[0]);             // [low, hi
+
+			for(int i = 1; i < size; ++i)
+				vec2vec(wrapper.buffer, feature_rows,               // buffer
+						tensor, i,                                  // tensor for i 
+						_sum(class_size,i-1), _sum(class_size,i));  // [low, hi]
 
 			std::cout << "\n\n";
-			for (int i = 0; i < class_1; ++i)
-				std::cout << "[" << 0 << i << "]" << std::endl <<  tensor[0][i] << std::endl << std::endl;
-			for (int i = 0; i < class_3; ++i)
-				std::cout << "[" << 1 << i << "]" << std::endl << tensor[1][i] << std::endl << std::endl;
-			for (int i = 0; i < class_3; ++i)
-				std::cout << "["<<2 << i <<"]"<< std::endl << tensor[2][i] << std::endl << std::endl;
+			for(int i = 1; i < size; ++i) output(class_size, i);
 		}
-			
+		
 	private:
 		/**
 		 * @brief trans form std::vector to uranus::vector
@@ -183,6 +184,19 @@ namespace uranus
 
 				tensor[index].push_back(temp_set);
 			}
+		}
+
+		int _sum(std::vector<int>& class_size, int idx )
+		{
+			int sum = 0;
+			for(int i = 0; i<= idx; ++i) sum+=class_size[i]; // 这里是 <=
+			return sum;
+		}
+
+		void output(std::vector<int>& class_size, int idx)
+		{
+			for (int i = 0; i < class_size[idx]; ++i)
+				std::cout << tensor[idx][i] << std::endl << std::endl;
 		}
 	};
 
