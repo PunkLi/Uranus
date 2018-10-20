@@ -32,27 +32,26 @@
 
 namespace uranus
 {
-	// init
-	// constexpr int feature_rows = 4;      // feature 维数
-
-    /**
+	/**
 	 * @class uranus::Data_Wrapper
 	 * @brief read data form file
-	 */ 
+	 */
 	template<int feature_rows> class Data_Wrapper
 	{
-		const int sample_num;
+		const int sample_num; // sample number
 	public:
 		using DataSet = std::vector<                    // vector of 
-						std::pair<std::vector<double>,  // feature cols [维度]
-						std::string                     // label
-						> >;
+			std::pair<std::vector<double>,  // feature cols [维度]
+			std::string                     // label
+			> >;
 		DataSet buffer;
 
-		Data_Wrapper(std::string file_name, std::vector<int> vec)
-							:sample_num(accumulate(vec.begin(),vec.end(),0))
+		Data_Wrapper(const std::string file_name, 
+			         const std::vector<int> vec,
+					 bool ishow = false)
+			:sample_num(accumulate(vec.begin(), vec.end(), 0))
 		{
-			readData(file_name, buffer, feature_rows, sample_num);
+			readData(file_name, buffer, feature_rows, sample_num, ishow);
 		}
 
 		/**
@@ -60,11 +59,13 @@ namespace uranus
 		 * @param file_name
 		 * @param feature_vec of feature
 		 * @param feature_vec of sample set
+		 * @param visual , is ouput
 		 */
-		void readData(std::string& file_name,
-				  	  DataSet& buffer,
-					  int feature_num,
-					  int sample_num )
+		void readData(const std::string& file_name,
+			DataSet& buffer,
+			const int feature_num,
+			const int sample_num,
+			bool visual = false)
 		{
 			buffer.resize(sample_num);
 			std::ifstream fin(file_name);
@@ -87,17 +88,18 @@ namespace uranus
 
 				buffer[index] = std::make_pair(feature_vec, label);
 
-				std::cout << "处理之后的字符串："
-					<< feature_vec[0] << "\t"
-					<< feature_vec[1] << "\t"
-					<< feature_vec[2] << "\t"
-					<< feature_vec[3] << "\t"
-					<< std::endl;
+				if (visual)
+				{
+					std::cout << "In buffer: ";
+					for (int i = 0; i < feature_num; ++i)
+						std::cout << feature_vec[i] << "\t";
+					std::cout << std::endl;
+				}
 			}
 		}
-	private: 
+	private:
 		/**
-	 	* @brief clean string & trash useless char elements
+		* @brief clean string & trash useless char elements
 		* @param string
 		* @return string
 		*/
@@ -109,52 +111,59 @@ namespace uranus
 		}
 	};
 
-	 /**
-	 * @class uranus::Tensor
-	 * @brief vector of class , vector of sample, vector of sample Dim, 
-     * such as [[[],[],[]], [[],[],[]], [[],[],[]] ]
-	 */ 
+	/**
+	* @class uranus::Tensor
+	* @brief vector of class , vector of sample, vector of sample Dim,
+	* such as [[[],[],[]], [[],[],[]], [[],[],[]] ]
+	*/
 	template<int feature_rows> class Tensor
 	{
 	public:
 		using DataSet = std::vector<                    // vector of 
-						std::pair<std::vector<double>,  // feature cols [维度]
-						std::string                     // label
-						> >;
-			// init
-			using sample = uranus::Vector<feature_rows>;
+			std::pair<std::vector<double>,  // feature cols [维度]
+			std::string                     // label
+			> >;
+		// init
+		using sample = uranus::Vector<feature_rows>;
 
-			// 这是可以直接用在fisher里头的
-			std::vector<std::vector<sample>> tensor;
+		// 这是可以直接用在fisher里头的
+		std::vector<std::vector<sample>> tensor;
 		// Tensor(){}
 
-		Tensor(Data_Wrapper<feature_rows>& wrapper, std::vector<int> class_size)
+		Tensor(const Data_Wrapper<feature_rows>& wrapper, 
+			   const std::vector<int> class_size,
+			   bool ishow = false)
 		{
-			getfromfile(wrapper, class_size);
+			getfromfile(wrapper, class_size, ishow);
 		}
 
-        /**
-         * @brief get buffer data form data_wrapper
-         * @param reference of data_wrapper
-         */
-		void getfromfile(Data_Wrapper<feature_rows>& wrapper, std::vector<int> class_size)
+		/**
+		 * @brief get buffer data form data_wrapper
+		 * @param reference of data_wrapper
+		 */
+		void getfromfile(const Data_Wrapper<feature_rows>& wrapper, 
+			             const std::vector<int> class_size,
+						 bool visual = false)
 		{
 			int size = class_size.size();
 			tensor.resize(feature_rows);
 
 			vec2vec(wrapper.buffer, feature_rows,  // buffer 
-					tensor, 0,                     // tensor for 0
-					0, class_size[0]);             // [low, hi
+				tensor, 0,                     // tensor for 0
+				0, class_size[0]);             // [low, hi
 
-			for(int i = 1; i < size; ++i)
+			for (int i = 1; i < size; ++i)
 				vec2vec(wrapper.buffer, feature_rows,               // buffer
-						tensor, i,                                  // tensor for i 
-						_sum(class_size,i-1), _sum(class_size,i));  // [low, hi]
+					tensor, i,                                  // tensor for i 
+					_sum(class_size, i - 1), _sum(class_size, i));  // [low, hi]
 
-			std::cout << "\n\n";
-			for(int i = 1; i < size; ++i) output(class_size, i);
+			if (visual)
+			{
+				std::cout << "\n\n";
+				for (int i = 1; i < size; ++i) output(class_size, i);
+			}
 		}
-		
+
 	private:
 		/**
 		 * @brief trans form std::vector to uranus::vector
@@ -165,12 +174,13 @@ namespace uranus
 		 * @param index of begin iter, in buffer
 		 * @param index of end iter, in buffer
 		 */
-		void vec2vec(DataSet & buffer,
-					int featrue,
-					std::vector<std::vector<sample>> & tensor,
-					int index,
-					int begin,
-					int end)
+		void vec2vec(
+			const DataSet & buffer,
+			const int featrue,
+			std::vector<std::vector<sample>> & tensor,
+			const int index,
+			const int begin,
+			const int end)
 		{
 			// To-do : 
 			// std::vector -> uranus::vector , step by step 
@@ -186,20 +196,19 @@ namespace uranus
 			}
 		}
 
-		int _sum(std::vector<int>& class_size, int idx )
+		int _sum(const std::vector<int>& class_size, int idx)
 		{
 			int sum = 0;
-			for(int i = 0; i<= idx; ++i) sum+=class_size[i]; // 这里是 <=
+			for (int i = 0; i <= idx; ++i) sum += class_size[i]; // 这里是 <=
 			return sum;
 		}
 
-		void output(std::vector<int>& class_size, int idx)
+		void output(const std::vector<int>& class_size, int idx)
 		{
 			for (int i = 0; i < class_size[idx]; ++i)
 				std::cout << tensor[idx][i] << std::endl << std::endl;
 		}
 	};
-
 }
 
 	/**

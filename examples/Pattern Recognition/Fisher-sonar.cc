@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
 	using namespace std;
 
-	std::string path = "../data/UCI-Iris/sonar.all-data";
+	std::string path = "../data/UCI-sonar/sonar.all-data";
 	constexpr int feature_rows = 60;
 	std::vector<int> class_ = { 97,111 };
 	uranus::Data_Wrapper<feature_rows> wrapper(path, class_);
