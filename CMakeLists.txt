@@ -20,16 +20,12 @@ option(URANUS_BUILD_EXAMPLES "Build the Uranus examples" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
-# find_package(Eigen3)
+find_package(glog REQUIRED) # COMPONENTS nothreads_static)
 
-# if(NOT EIGEN3_FOUND)
-#     find_package(cmake_modules REQUIRED)
-#     find_package(Eigen3 REQUIRED)
-#     set(EIGEN3_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
-#     set(EIGEN3_LIBRARIES ${EIGEN_LIBRARIES})
-# else()
-#     set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
-# endif()
+if(NOT GLOG_FOUND)
+     add_subdirectory("glog")
+     include_directories("glog/include")
+else()
 
 set(CURRENT_PROJET_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CURRENT_PROJET_DIR}/build)
@@ -46,6 +42,8 @@ include_directories(
 set(HEADERS
     include/uranus/Matrix.hpp
     include/uranus/Function.hpp
+    include/uranus/Tensor.hpp
+    include/uranus/log.h
 )
 
 # Examples
@@ -54,6 +52,10 @@ if(URANUS_BUILD_EXAMPLES)
     add_executable(example_2 "examples/Pattern Recognition/Fisher.cc")
     add_executable(example_3 "examples/Pattern Recognition/Fisher-sonar.cc")
     add_executable(example_4 "examples/Pattern Recognition/Fisher-Iris.cc")
+    target_link_libraries(example_1 glog)
+    target_link_libraries(example_2 glog)
+    target_link_libraries(example_3 glog)
+    target_link_libraries(example_4 glog)
 endif()
 
 # Unit Tests
@@ -64,9 +66,9 @@ set(TESTS
 
 if(URANUS_BUILD_TESTING)
     enable_testing()
-    add_subdirectory("gtest")
-    include_directories("gtest/include")
-    add_executable(uranus_test ${TESTS} ${HEADERS})
-    target_link_libraries(uranus_test PRIVATE gtest gtest_main)
+        add_subdirectory("gtest")
+        include_directories("gtest/include")
+        add_executable(uranus_test ${TESTS} ${HEADERS})
+        target_link_libraries(uranus_test PRIVATE gtest gtest_main glog)
     add_test(uranus uranus_test)
 endif()

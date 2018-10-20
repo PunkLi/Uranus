@@ -2,31 +2,26 @@ language: cpp
 sudo: required
 dist: trusty
 compiler:
-- gcc
-# env:
-# - EIGEN=3.2.9
-# - EIGEN=3.3-beta2
+  - gcc
 
-# addons:
-#   apt:
-#     sources:
-#     - ubuntu-toolchain-r-test
-#     packages:
-#     - gcc-5
-#     - g++-5
-# 
-# before_install:
-# # Set compiler version
-# - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+before_install:
+  - sudo apt-get update
 
 install:
-# Install Eigen from source
-- sudo apt-get install libeigen3-dev
+  - sudo apt-get install libeigen3-dev
+  - git clone https://github.com/google/glog.git
+  - cd glog
+  - mkdir build && cd build
+  - cmake ..
+  - make
+  - sudo make install
+  - cd ../../
 
 script:
-- mkdir build && cd build
-- cmake .. && make
-- ./example_1
-- ./example_2
-- ./example_3
-- ./example_4
+  - mkdir build && cd build
+  - cmake ..
+  - make
+  - ./example_1
+  - ./example_2
+  - ./example_3
+  - ./example_4
