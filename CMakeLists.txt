@@ -25,7 +25,7 @@ find_package(glog REQUIRED) # COMPONENTS nothreads_static)
 if(NOT GLOG_FOUND)
      add_subdirectory("glog")
      include_directories("glog/include")
-else()
+endif()
 
 set(CURRENT_PROJET_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CURRENT_PROJET_DIR}/build)
