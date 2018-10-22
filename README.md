@@ -22,21 +22,17 @@ A tiny library for solving math and optimization problem.
 > 海王星是太阳系中距离太阳最远的行星，在1846年9月23日被发现，是唯一利用数学预测而非有计划的观测发现的行星。天文学家利用天王星轨道的摄动推测出海王星的存在与可能的位置。
 
 ## Dependencies
-- 代码构建：https://cmake.org/
-- 线性代数：http://eigen.tuxfamily.org/index.php?title=Main_Page
-- 文档生成：http://www.doxygen.org/
-- 日志系统：https://github.com/google/glog
-- 数据存储：https://developers.google.com/protocol-buffers/
-- 单元测试：https://github.com/google/googletest.git
-- 集成测试：https://travis-ci.org/
+- 线性代数：[Eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page)
+- 日志系统：[glog](https://github.com/google/glog)
+- 单元测试：[gtest](https://github.com/google/googletest.git)
 
 ## Setup Software
 ```shell
-sudo apt-get install libeigen3-dev
 git clone https://github.com/hackath/Uranus.git
-git submodule update --init --recursive
-mkdir build && cd build
-cmake .. && make
+mkdir build
+cd build
+cmake ..
+make
 ```
 ## Documents
 克隆代码仓库，打开 `html/index.html` 查看[Doxygen](http://www.doxygen.org/)自动生成的代码文档。

@@ -21,11 +21,8 @@ option(URANUS_BUILD_EXAMPLES "Build the Uranus examples" ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(glog REQUIRED) # COMPONENTS nothreads_static)
-
-if(NOT GLOG_FOUND)
-     add_subdirectory("glog")
-     include_directories("glog/include")
-endif()
+find_package(GTest REQUIRED)
+find_package(Threads REQUIRED)
 
 set(CURRENT_PROJET_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CURRENT_PROJET_DIR}/build)
@@ -49,9 +46,9 @@ set(HEADERS
 # Examples
 if(URANUS_BUILD_EXAMPLES)
     add_executable(example_1 "examples/Newton.cc")
-    add_executable(example_2 "examples/Pattern Recognition/Fisher.cc")
-    add_executable(example_3 "examples/Pattern Recognition/Fisher-sonar.cc")
-    add_executable(example_4 "examples/Pattern Recognition/Fisher-Iris.cc")
+    add_executable(example_2 "examples/Fisher.cc")
+    add_executable(example_3 "examples/Fisher-sonar.cc")
+    add_executable(example_4 "examples/Fisher-Iris.cc")
     target_link_libraries(example_1 glog)
     target_link_libraries(example_2 glog)
     target_link_libraries(example_3 glog)
@@ -66,9 +63,11 @@ set(TESTS
 
 if(URANUS_BUILD_TESTING)
     enable_testing()
-        add_subdirectory("gtest")
-        include_directories("gtest/include")
         add_executable(uranus_test ${TESTS} ${HEADERS})
-        target_link_libraries(uranus_test PRIVATE gtest gtest_main glog)
+        target_link_libraries(uranus_test 
+            glog
+            ${GTEST_BOTH_LIBRARIES}
+            ${CMAKE_THREAD_LIBS_INIT}
+            )
     add_test(uranus uranus_test)
 endif()
