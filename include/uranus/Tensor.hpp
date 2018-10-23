@@ -38,9 +38,9 @@ namespace uranus
 	 */
 	template<int feature_rows> class Data_Wrapper
 	{
-		const int sample_num; // sample number
+		const int sample_num;
 	public:
-		using DataSet = std::vector<                    // vector of 
+		using DataSet = std::vector<        // vector of 
 			std::pair<std::vector<double>,  // feature cols [维度]
 			std::string                     // label
 			> >;
@@ -59,7 +59,6 @@ namespace uranus
 		 * @param file_name
 		 * @param feature_vec of feature
 		 * @param feature_vec of sample set
-		 * @param visual , is ouput
 		 */
 		void readData(const std::string& file_name,
 			DataSet& buffer,
@@ -118,16 +117,19 @@ namespace uranus
 	*/
 	template<int feature_rows> class Tensor
 	{
+		std::vector<int> vec_size;
 	public:
-		using DataSet = std::vector<                    // vector of 
+		using DataSet = std::vector<        // vector of 
 			std::pair<std::vector<double>,  // feature cols [维度]
 			std::string                     // label
 			> >;
-		// init
-		using sample = uranus::Vector<feature_rows>;
 
-		// 这是可以直接用在fisher里头的
-		std::vector<std::vector<sample>> tensor;
+		// using Type
+		using sampleType = uranus::Vector<feature_rows>;
+		using sample_set = std::vector<sampleType>;
+		using TensorType = std::vector<sample_set>;
+		
+		TensorType tensor;
 		// Tensor(){}
 
 		Tensor(const Data_Wrapper<feature_rows>& wrapper, 
@@ -145,6 +147,7 @@ namespace uranus
 			             const std::vector<int> class_size,
 						 bool visual = false)
 		{
+			this->vec_size.assign(class_size.begin(), class_size.end());
 			int size = class_size.size();
 			tensor.resize(feature_rows);
 
@@ -163,8 +166,114 @@ namespace uranus
 				for (int i = 1; i < size; ++i) output(class_size, i);
 			}
 		}
+		/**
+		 * @brief leave-one-out cross validation
+		 * @param index of vector of class, such as vec[0] as {50} in {50,50,50}
+		 * @return Tensor::TensorType x_set  {{49},{1}}
+		 */
+		TensorType leave_one_out_validation(const int index, bool visual = false)
+		{
+			TensorType x_set(2);                  // 留一法, train + test
+			int total = vec_size[index];             
+			int rand = uniform_intx(0, total - 1);
+			for (int i = 0; i < total; ++i)
+			{
+				if(i != rand)
+					x_set[0].push_back(this->tensor[index][i]);  // vec_size[index].size() - 1 of train
+				else
+					x_set[1].push_back(this->tensor[index][i]);  // one test sample
+			}
+			if(visual) std::cout << "Leave_one_out_validation rand: " << rand << std::endl;
+			return x_set;
+		}
+		/**
+		 * @brief k-fold cross validation
+		 * @param index of vector of class, such as vec[0] as {50} in {50,50,50}
+		 * @return Tensor::TensorType x_set { {V_1},{V_2},{V_3},{V_4},...,{V_k} }
+		 */
+		template<int const_K>
+		TensorType k_fold_crossValidation(const int index, bool visual = false)
+		{
+			if (visual) 
+				std::cout << std::endl 
+				<< "------k-fold cross Validation------" 
+				<< std::endl;
+			int total = vec_size[index];
+			int batch_size = vec_size[index] / const_K;  // Tensor的第几个批？
 
+			int *temp_array = new int[total];  // total
+			int *last_batch = new int[batch_size];  // last batch
+
+			for (int i = 0; i < total; ++i) *(temp_array+i) = 0;
+
+			// std::vector<                  // Dim for 3, k batch
+			//	   std::vector<sampleType>   // Dim for 2, current batch
+			TensorType x_set(const_K);
+
+			int _rand, k = 0, isHit = 0, r = 0;
+			
+			for (int i = 0; i < total; ++i)
+			{
+				// std::cout << "k: " << k << "\t";
+				do {
+					if (r > (const_K - 1)*batch_size)
+					{
+						int last_k = 0;
+						for (int i = 0; i < total; ++i)
+						{
+							int _isHit = *(temp_array + i);
+							if (!_isHit)
+								*(last_batch + last_k++) = i;
+						}
+						break;
+					}
+					_rand = uniform_intx(0, total - 1);
+					if (!isHit) {
+						if (visual) std::cout << _rand << "\t"; // std::endl;
+						if (++r == batch_size) break;
+					}
+					isHit = *(temp_array + _rand);          // 是否曾经命中过
+				} while (isHit);
+
+				*(temp_array + _rand) = 1;  // 标记一下，命中
+				
+				if ( (i + 1) % batch_size == 0 && k < const_K) 
+				{
+					k++;       // batch_size++
+					if (visual) std::cout << std::endl;
+				}
+				if (r > (const_K - 1)*batch_size) break;
+				x_set[k].push_back(this->tensor[index][i]); // index，比如{50，50，50}的第一批，i = 1->50
+			}
+
+			for (int i = 0; i < batch_size; ++i)
+			{
+				int _rand = *(last_batch + i);
+				if (visual) std::cout << _rand << "\t";
+				x_set[k].push_back(this->tensor[index][_rand]);  // last batch 
+			}
+			if (visual) 
+				std::cout << std::endl << "-----------------------------------" << std::endl;
+			return x_set; // 分成k折的vector<sampleType> 类型 Tensor
+		}
 	private:
+		/**
+		 * @brief generate random number int [a,b]
+		 * @param  low bounder a
+		 * @param high bounder b
+		 * @return randon number in [a,b]
+		 */
+		int uniform_intx(int a, int b)
+		{
+			// linear_congruential_engine  线性同余法
+		    // mersenne_twister_engine     梅森旋转法
+			// substract_with_carry_engine 滞后Fibonacci
+
+			static std::default_random_engine e{ std::random_device{}() };
+			static std::uniform_int_distribution<int> u;
+			return u(e, std::uniform_int_distribution<int>::param_type(a, b));
+		}
+
 		/**
 		 * @brief trans form std::vector to uranus::vector
 		 * @param DataSet, which is buffer read from files
@@ -177,7 +286,7 @@ namespace uranus
 		void vec2vec(
 			const DataSet & buffer,
 			const int featrue,
-			std::vector<std::vector<sample>> & tensor,
+			std::vector<std::vector<sampleType>> & tensor,
 			const int index,
 			const int begin,
 			const int end)
@@ -186,7 +295,7 @@ namespace uranus
 			// std::vector -> uranus::vector , step by step 
 			// std::vector<  std::pair<   std::vector<double>,  std::string  >>;
 			// std::vector<             uranus::Vector<feature>              >> x_set;
-			sample temp_set;
+			sampleType temp_set;
 			for (int i = begin; i < end; ++i)
 			{
 				for (int j = 0; j < featrue; ++j)
@@ -209,16 +318,5 @@ namespace uranus
 				std::cout << tensor[idx][i] << std::endl << std::endl;
 		}
 	};
-}
 
-	/**
-	 * @brief generate random number int [a,b]
-	 * @param  low bounder a
-	 * @param high bounder b
-	 * @return randon number in [a,b]
-	 */
-	int uniform_intx(int a, int b) {
-		static std::default_random_engine e{ std::random_device{}() };
-		static std::uniform_int_distribution<int> u;
-		return u(e, std::uniform_int_distribution<int>::param_type(a, b));
-	}
+}
