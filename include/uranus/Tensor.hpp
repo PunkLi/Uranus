@@ -150,7 +150,7 @@ namespace uranus
 			bool visual = false)
 		{
 			this->vec_size.assign(class_size.begin(), class_size.end());
-			int size = class_size.size();
+			size_t size = class_size.size();
 			tensor.resize(feature_rows);
 
 			vec2vec(wrapper.buffer, feature_rows,  // buffer 
@@ -231,7 +231,7 @@ namespace uranus
 							std::cout << "\nhit_table:[";
 							for (int i = 0; i < total; ++i)
 								std::cout << *(hit_table + i);
-							std::cout << "]  hit_idx: " << (const_K - 1)*batch_size << "\n\n";
+							std::cout << "] \n\n";
 						}
 						for (int i = 0; i < total; ++i)
 						{
@@ -255,7 +255,7 @@ namespace uranus
 				if ((i + 1) % batch_size == 0) // 取下一个k折
 				{
 					idx_k++;
-					if (visual) std::cout <<"k-fold  of "<< idx_k << std::endl;
+					if (visual) std::cout <<"k-fold of "<< idx_k << std::endl;
 				}
 				x_set[0].push_back(this->tensor[index][rand_idxTable]);
 			} 
@@ -268,14 +268,26 @@ namespace uranus
 				x_set[1].push_back(this->tensor[index][idx_rand]);  // last batch 
 			}
 			if (visual) {
-				std::cout << "\n-----------------------------------\n"
+				std::cout << "k-fold of "<< ++idx_k
+						  <<"\n-----------------------------------\n"
 						  << "trian_set size: " << x_set[0].size() << "\n"
 						  << "test_set size: " << x_set[1].size()
 						  << "\n-----------------------------------\n";
 			}
 			return x_set; // 分成k折的vector<sampleType> 类型 Tensor
 		}
+		sampleType get_mean(const sample_set data_set, bool visual = false)
+		{
+			const int batch_size = data_set.size();
+			sampleType vector_mean;
+			setZero<sampleType, feature_rows>(vector_mean);
+			for (int i = 0; i < batch_size; ++i) vector_mean += data_set[i];
+			if (visual)
+				std::cout << "\nmean:\n" << vector_mean << "\n";
+			return vector_mean / batch_size;
+		}
 	private:
+		
 		/**
 		 * @brief generate random number int [a,b]
 		 * @param  low bounder a

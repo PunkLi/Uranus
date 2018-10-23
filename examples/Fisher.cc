@@ -74,69 +74,83 @@
 
 #include <iostream>
 #include <vector>
-#include "uranus/Matrix.hpp"
-#include "uranus/Function.hpp"
+#include "uranus/Tensor.hpp"
+#include "Fisher.h"
+
+constexpr int feature_rows = 3;
+std::vector<int> data_class = { 10,10 };
+std::string path = "../data/fisher-example";
+// k折交叉验证
+constexpr int K = 10;
+
+std::vector<uranus::Vector<feature_rows>> mean;
+std::vector<uranus::SquareMatrix<feature_rows>> Si;
+uranus::SquareMatrix<feature_rows> Sw;
+
+
+constexpr int Dim = feature_rows;
+
+uranus::SquareMatrix<Dim> Si_1;
+uranus::SquareMatrix<Dim> Si_2;
+
+void Evaluation(const uranus::Vector<1> W0,
+				const std::vector<uranus::Vector<1>>& set)
+{
+	size_t size = set.size();
+	double P = 0, N = 0;
+	for (int i = 0; i < size; ++i)
+	{
+		double sub = set[i](0) - W0(0);
+		if (sub > 0)
+			P++;
+		else
+			N++;
+	}
+	double rate = (P / size) > (N / size) ? (P / size) : (N / size);
+	
+	std::cout << "rate:" << rate*100 << "% \n";
+}
 
 int main(int argc, char *argv[])
 {
 	using namespace std;
 	const int batch_size = 10;
 
-	int size = 0;
-	int size2 = 0;
-	constexpr int Dim = 3;
-
-	std::vector<uranus::Vector<Dim>> x_set1(batch_size);  // 10组，3维数，class1
-	std::vector<uranus::Vector<Dim>> x_set2(batch_size);  // 10组，3维数，class2
-
-	x_set1[0] << -0.4, 0.58, 0.089;
-	x_set1[1] << -0.31, 0.27, -0.04;
-	x_set1[2] << -0.38, 0.055, -0.035;
-	x_set1[3] << -0.15, 0.53, 0.011;
-	x_set1[4] << -0.35, 0.47, 0.034;
-	x_set1[5] << 0.17, 0.69, 0.1;
-	x_set1[6] << -0.011, 0.55, -0.18;
-	x_set1[7] << -0.27, 0.61, 0.12;
-	x_set1[8] << -0.065, 0.49, 0.0012;
-	x_set1[9] << -0.12, 0.054, -0.063;
-
-	x_set2[0] << 0.83, 1.6, -0.014;
-	x_set2[1] << 1.1, 1.6, 0.48;
-	x_set2[2] << -0.44, -0.41, 0.32;
-	x_set2[3] << 0.047, -0.45, 1.4;
-	x_set2[4] << 0.28, 0.35, 3.1;
-	x_set2[5] << -0.39, -0.48, 0.11;
-	x_set2[6] << 0.34, -0.079, 0.14;
-	x_set2[7] << -0.3, -0.22, 2.2;
-	x_set2[8] << 1.1, 1.2, -0.46;
-	x_set2[9] << 0.18, -0.11, -0.49;
-
-	//cout << x_set1[0];
-
-	uranus::Vector<Dim> mean_1;
-	mean_1 << 0, 0, 0;
-	uranus::Vector<Dim> mean_2;
-	mean_2 << 0, 0, 0;
-	uranus::SquareMatrix<Dim> Si_1;
-	Si_1 << 0, 0, 0, 0, 0, 0, 0, 0, 0;
-	uranus::SquareMatrix<Dim> Si_2;
-	Si_2 << 0, 0, 0, 0, 0, 0, 0, 0, 0;
+	using namespace std;
+	using sample_set = uranus::Tensor<feature_rows>::sample_set;
+	using tensor = uranus::Tensor<feature_rows>::TensorType;
 	
-	// step1 均值向量
-	for (int i = 0; i < batch_size; ++i)
-	{
-		mean_1 += x_set1[i]*0.1;
-		mean_2 += x_set2[i]*0.1;
-	}
+	uranus::Data_Wrapper<feature_rows> wrapper(path, data_class, true);
+	uranus::Tensor<feature_rows> data(wrapper, data_class);
 
+	Si_1 << 0, 0, 0, 0, 0, 0, 0, 0, 0;
+	Si_2 << 0, 0, 0, 0, 0, 0, 0, 0, 0;
+
+	tensor tensor_x1 = data.k_fold_crossValidation<3>(0, true);
+	tensor tensor_x2 = data.k_fold_crossValidation<4>(1, true);
+
+	sample_set train_x1 = tensor_x1[0];
+	sample_set train_x2 = tensor_x2[0];
+
+	sample_set test_x1 = tensor_x1[1];
+	sample_set test_x2 = tensor_x2[1];
+
+	// step1 均值向量
+	auto mean_0 = data.get_mean(train_x1, true);
+	auto mean_1 = data.get_mean(train_x2, true);
+	
 	// step2 类内离散度矩阵
-	for (int i = 0; i < batch_size; ++i)
+#pragma omp parallel
 	{
-		Si_1 += (x_set1[i] - mean_1)*(x_set1[i] - mean_1).transpose();
-		Si_2 += (x_set2[i] - mean_2)*(x_set2[i] - mean_2).transpose();
+#pragma omp for
+		for (int i = 0; i < train_x1.size(); ++i)
+			Si_1 += (train_x1[i] - mean_0)*(train_x1[i] - mean_0).transpose();
+		cout << "Si_1=\n" << Si_1 << endl << endl;
+#pragma omp for
+		for (int i = 0; i < train_x2.size(); ++i)
+			Si_2 += (train_x2[i] - mean_1)*(train_x2[i] - mean_1).transpose();
+		cout << "Si_2=\n" << Si_2 << endl << endl;
 	}
-	cout << "Si_1=\n"<< Si_1 << endl << endl;
-	cout << "Si_2=\n"<< Si_2 << endl << endl;
 
 	// step3
 	// 总样本类内离散度矩阵Sw  对称半正定矩阵，而且当n>d时通常是非奇异的
@@ -145,30 +159,37 @@ int main(int argc, char *argv[])
 
 	// step4
 	// 样本类间离散度矩阵SB
-	uranus::SquareMatrix<Dim> Sb = (mean_1 - mean_2) * (mean_1 - mean_2).transpose();
-
+	init_Sb_(Dim, mean_0, mean_1);
+	cout << "Sb=\n" << Sb_(mean_0, mean_1) << endl << endl;
 	// step5
 	// Fisher准则函数 -- 最佳投影方向
 	// uranus::SquareMatrix<Dim> Jw = Sb*Sw.inverse();
 	// w* = \argmax J(w)
-
-	uranus::Vector<Dim> argW = Sw.inverse()*(mean_1 - mean_2);
-	cout << "argW=\n" << argW << endl << endl;
-
+	init_argW_(Dim, mean_0, mean_1);
+	cout << "argW=\n" << argW_(mean_0, mean_1) << endl << endl;
 
 	// step6求阈值 W0 
-	uranus::Vector<1> W0 = argW.transpose()*mean_1 / 2 + argW.transpose()*mean_2 / 2;
-	cout << "Wo=\n" << W0 << endl << endl;
+	init_W0_(Dim, mean_0, mean_1);
+	cout << "Wo=\n" << W0_(mean_0, mean_1) << endl << endl;
 
 	// step7线性变换
-	std::vector<uranus::Vector<1>> D1(batch_size);
-	std::vector<uranus::Vector<1>> D2(batch_size);
-	for (int i = 0; i < batch_size; ++i)
+	std::vector<uranus::Vector<1>> D1(test_x1.size());
+	std::vector<uranus::Vector<1>> D2(test_x2.size());
+
+	for (int i = 0; i < test_x1.size(); ++i)
 	{
-		D1[i] = argW.transpose()*x_set1[i];
-		cout << D1[i] << "       ";
-		D2[i] = argW.transpose()*x_set2[i];
+		D1[i] = argW_(mean_0, mean_1).transpose()*test_x1[i];
+		cout << D1[i] << endl;
+	}
+	cout << "\n";
+	for (int i = 0; i < test_x2.size(); ++i)
+	{
+		D2[i] = argW_(mean_0, mean_1).transpose()*test_x2[i];
 		cout << D2[i] << endl;
 	}
+	
+	Evaluation(W0_(mean_0, mean_1), D1);
+	Evaluation(W0_(mean_0, mean_1), D2);
+	
 	return EXIT_SUCCESS;
 }

@@ -68,7 +68,7 @@ namespace uranus
 	 * @param N The dimensionality of vector or SquareMatrix
 	 */
 	template<typename Type, int N>
-	inline bool setZeroMat(Type rhs)
+	inline bool setZero(Type& rhs)
     {
 		if (std::is_same<Type, Vector<N>>::value)
 		{
