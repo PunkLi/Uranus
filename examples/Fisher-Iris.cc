@@ -6,140 +6,138 @@
 
 #include <iostream>
 #include <vector>
-#include "uranus/Matrix.hpp"
 #include "uranus/Tensor.hpp"
+#include "Fisher.h"
+
+constexpr int feature_rows = 4;
+constexpr int Dim = feature_rows;
+
+std::vector<int> data_class = { 50,50,50 };
+
+std::string path = "../data/iris.data";
+
+std::vector<uranus::Vector<feature_rows>> mean;
+uranus::SquareMatrix<feature_rows> Si_1;
+uranus::SquareMatrix<feature_rows> Si_2;
+uranus::SquareMatrix<feature_rows> Si_3;
+uranus::SquareMatrix<feature_rows> Sw;
 
 int main(int argc, char *argv[])
 {
 	using namespace std;
 
-	std::string path = "../data/UCI-Iris/iris.data";
-	constexpr int feature_rows = 4;
-	std::vector<int> class_ = { 50,50,50 };
-	uranus::Data_Wrapper<feature_rows> wrapper(path, class_);
-	uranus::Tensor<feature_rows> data(wrapper, class_);
+	using sample_set = uranus::Tensor<feature_rows>::sample_set;
+	using tensor = uranus::Tensor<feature_rows>::TensorType;
 
-	auto& x_set1 = data.tensor[0];
-	auto& x_set2 = data.tensor[1];
-	auto& x_set3 = data.tensor[2];
+	uranus::Data_Wrapper<feature_rows> wrapper(path, data_class);
+	uranus::Tensor<feature_rows> data(wrapper, data_class);
 
-	uranus::Vector<feature_rows> mean_1;
-	for (int i = 0; i < feature_rows; ++i)mean_1(i) = 0;
+	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_1);
+	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_2);
+	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_3);
+	
+	tensor tensor_x1 = data.k_fold_crossValidation<2>(0, true);
+	tensor tensor_x2 = data.k_fold_crossValidation<2>(1, true);
+	tensor tensor_x3 = data.k_fold_crossValidation<2>(2, true);
 
-	uranus::Vector<feature_rows> mean_2;
-	for (int i = 0; i < feature_rows; ++i)mean_2(i) = 0;
+	sample_set train_x1 = tensor_x1[0];
+	sample_set train_x2 = tensor_x2[0];
+	sample_set train_x3 = tensor_x3[0];
 
-	uranus::Vector<feature_rows> mean_3;
-	for (int i = 0; i < feature_rows; ++i)mean_3(i) = 0;
-
-	uranus::SquareMatrix<feature_rows> Si_1;
-	for (int i = 0; i < feature_rows*feature_rows; ++i)Si_1(i) = 0;
-
-	uranus::SquareMatrix<feature_rows> Si_2;
-	for (int i = 0; i < feature_rows*feature_rows; ++i)Si_2(i) = 0;
-
-	uranus::SquareMatrix<feature_rows> Si_3;
-	for (int i = 0; i < feature_rows*feature_rows; ++i)Si_3(i) = 0;
+	sample_set test_x1 = tensor_x1[1];
+	sample_set test_x2 = tensor_x2[1];
+	sample_set test_x3 = tensor_x3[1];
 
 	// step1 均值向量
-	for (int i = 0; i < class_[0]; ++i) mean_1 += x_set1[i];
-	mean_1 = mean_1 / class_[0];
-	for (int i = 0; i < class_[1]; ++i) mean_2 += x_set2[i];
-	mean_2 = mean_2 / class_[1];
-	for (int i = 0; i < class_[2]; ++i) mean_3 += x_set3[i];
-	mean_3 = mean_3 / class_[2];
+	auto mean_0 = data.get_mean(train_x1, true);
+	auto mean_1 = data.get_mean(train_x2, true);
+	auto mean_2 = data.get_mean(train_x3, true);
 
 	// step2 类内离散度矩阵
-	for (int i = 0; i < class_[0]; ++i)
-		Si_1 += (x_set1[i] - mean_1)*(x_set1[i] - mean_1).transpose();
-	for (int i = 0; i < class_[1]; ++i)
-		Si_2 += (x_set2[i] - mean_2)*(x_set2[i] - mean_2).transpose();
-	for (int i = 0; i < class_[2]; ++i)
-		Si_3 += (x_set3[i] - mean_3)*(x_set3[i] - mean_3).transpose();
+#pragma omp parallel
+	{
+#pragma omp for
+		for (int i = 0; i < train_x1.size(); ++i)
+			Si_1 += (train_x1[i] - mean_0)*(train_x1[i] - mean_0).transpose();
+		//cout << "Si_1=\n" << Si_1 << endl << endl;
+#pragma omp for
+		for (int i = 0; i < train_x2.size(); ++i)
+			Si_2 += (train_x2[i] - mean_1)*(train_x2[i] - mean_1).transpose();
+		//cout << "Si_2=\n" << Si_2 << endl << endl;
+#pragma omp for
+		for (int i = 0; i < train_x3.size(); ++i)
+			Si_3 += (train_x3[i] - mean_2)*(train_x3[i] - mean_2).transpose();
+		//cout << "Si_2=\n" << Si_2 << endl << endl;
+	}
 
-	cout << "Si_1=\n" << Si_1 << endl << endl;
-	cout << "Si_2=\n" << Si_2 << endl << endl;
-	cout << "Si_3=\n" << Si_3 << endl << endl;
 	// step3
 	// 总样本类内离散度矩阵Sw  对称半正定矩阵，而且当n>d时通常是非奇异的
-	uranus::SquareMatrix<feature_rows> Sw = Si_1 + Si_2 + Si_3;
-	cout << "Sw=\n" << Sw << endl << endl;
+	uranus::SquareMatrix<Dim> Sw = Si_1 + Si_2 + Si_3;
+	//cout << "Sw=\n" << Sw << endl << endl;
 
 	// step4
 	// 样本类间离散度矩阵SB
-	//uranus::SquareMatrix<feature_rows> Sb = (mean_1 - mean_2) * (mean_1 - mean_2).transpose();
-	uranus::SquareMatrix<feature_rows> Sb_12 = (mean_1 - mean_2) * (mean_1 - mean_2).transpose();
-	uranus::SquareMatrix<feature_rows> Sb_13 = (mean_1 - mean_3) * (mean_1 - mean_3).transpose();
-	uranus::SquareMatrix<feature_rows> Sb_23 = (mean_2 - mean_3) * (mean_2 - mean_3).transpose();
+	init_Sb_(Dim, mean_0, mean_1);
+	init_Sb_(Dim, mean_0, mean_2);
+	init_Sb_(Dim, mean_1, mean_2);
+	//cout << "Sb=\n" << Sb_(mean_0, mean_1) << endl << endl;
 
 	// step5
 	// Fisher准则函数 -- 最佳投影方向
-	// uranus::SquareMatrix<feature_rows> Jw = Sb*Sw.inverse();
+	// uranus::SquareMatrix<Dim> Jw = Sb*Sw.inverse();
 	// w* = \argmax J(w)
-
-	// uranus::Vector<feature_rows> argW = Sw.inverse()*(mean_1 - mean_2);
-	uranus::Vector<feature_rows> argW_12 = Sw.inverse()*(mean_1 - mean_2);
-	uranus::Vector<feature_rows> argW_13 = Sw.inverse()*(mean_1 - mean_3);
-	uranus::Vector<feature_rows> argW_23 = Sw.inverse()*(mean_2 - mean_3);
-	cout << "argW_12=\n" << argW_12 << endl << endl;
-	cout << "argW_13=\n" << argW_13 << endl << endl;
-	cout << "argW_23=\n" << argW_23 << endl << endl;
+	init_argW_(Dim, mean_0, mean_1);
+	init_argW_(Dim, mean_0, mean_2);
+	init_argW_(Dim, mean_1, mean_2);
+	// cout << "argW=\n" << argW_(mean_0, mean_1) << endl << endl;
 
 	// step6求阈值 W0 
-	// uranus::Vector<1> W0 = argW.transpose()*mean_1 / 2 + argW.transpose()*mean_2 / 2;
-	uranus::Vector<1> W0_12 = argW_12.transpose()*mean_1 / 2 + argW_12.transpose()*mean_2 / 2;
-	uranus::Vector<1> W0_13 = argW_13.transpose()*mean_1 / 2 + argW_13.transpose()*mean_3 / 2;
-	uranus::Vector<1> W0_23 = argW_23.transpose()*mean_2 / 2 + argW_23.transpose()*mean_3 / 2;
+	init_W0_(Dim, mean_0, mean_1);
+	init_W0_(Dim, mean_0, mean_2);
+	init_W0_(Dim, mean_1, mean_2);
+	// cout << "Wo=\n" << W0_(mean_0, mean_1) << endl << endl;
 
 	// step7线性变换
-	std::vector<uranus::Vector<1>> D1(class_[0]);
-	std::vector<uranus::Vector<1>> D2(class_[1]);
-	std::vector<uranus::Vector<1>> D3(class_[2]);
+	std::vector<uranus::Vector<1>> D1(test_x1.size());
+	std::vector<uranus::Vector<1>> D2(test_x1.size());
+	std::vector<uranus::Vector<1>> D3(test_x2.size());
+	std::vector<uranus::Vector<1>> D4(test_x2.size());
+	std::vector<uranus::Vector<1>> D5(test_x3.size());
+	std::vector<uranus::Vector<1>> D6(test_x3.size());
 
-	// 1-2分类
-	cout << "1-2分类" << endl;
-	cout << "D1=" << endl;
-	for (int i = 0; i < class_[0]; ++i)
+#pragma omp parallel
 	{
-		D1[i] = argW_12.transpose()*x_set1[i];
-		cout << D1[i] << endl;
+#pragma omp for
+		for (int i = 0; i < test_x1.size(); ++i)
+		{
+			D1[i] = argW_(mean_0, mean_1).transpose()*test_x1[i];
+			D2[i] = argW_(mean_0, mean_2).transpose()*test_x1[i];
+		}
+#pragma omp for
+		for (int i = 0; i < test_x2.size(); ++i)
+		{
+			D3[i] = argW_(mean_0, mean_1).transpose()*test_x2[i];
+			D4[i] = argW_(mean_1, mean_2).transpose()*test_x2[i];
+		}
+#pragma omp for
+		for (int i = 0; i < test_x3.size(); ++i)
+		{
+			D5[i] = argW_(mean_0, mean_2).transpose()*test_x3[i];
+			D6[i] = argW_(mean_1, mean_2).transpose()*test_x3[i];
+		}
 	}
-	cout << "Wo_12=\n" << W0_12 << endl << endl;
-	cout << "D2=" << endl;
-	for (int i = 0; i < class_[1]; ++i)
-	{
-		D2[i] = argW_12.transpose()*x_set2[i];
-		cout << D2[i] << endl;
-	}
-	// 1-3分类
-	cout << "1-3分类" << endl;
-	cout << "D1=" << endl;
-	for (int i = 0; i < class_[0]; ++i)
-	{
-		D1[i] = argW_13.transpose()*x_set1[i];
-		cout << D1[i] << endl;
-	}
-	cout << "Wo_13=\n" << W0_13 << endl << endl;
-	cout << "D3=" << endl;
-	for (int i = 0; i < class_[2]; ++i)
-	{
-		D3[i] = argW_13.transpose()*x_set3[i];
-		cout << D3[i] << endl;
-	}
-	// 2-3分类
-	cout << "2-3分类" << endl;
-	cout << "D2=" << endl;
-	for (int i = 0; i < class_[1]; ++i)
-	{
-		D2[i] = argW_23.transpose()*x_set2[i];
-		cout << D2[i] << endl;
-	}
-	cout << "Wo_23=\n" << W0_23 << endl << endl;
-	cout << "D3=" << endl;
-	for (int i = 0; i < class_[2]; ++i)
-	{
-		D3[i] = argW_23.transpose()*x_set3[i];
-		cout << D3[i] << endl;
-	}
+
+	cout << "\ntest for class1: \n";
+	Evaluation(W0_(mean_0, mean_1), D1);
+	Evaluation(W0_(mean_0, mean_2), D2);
+
+	cout << "\ntest for class2: \n";
+	Evaluation(W0_(mean_0, mean_1), D3);
+	Evaluation(W0_(mean_1, mean_2), D4);
+
+	cout << "\ntest for class3: \n";
+	Evaluation(W0_(mean_0, mean_2), D5);
+	Evaluation(W0_(mean_1, mean_2), D6);
+
 	return EXIT_SUCCESS;
 }

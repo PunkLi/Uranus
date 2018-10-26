@@ -80,36 +80,15 @@
 constexpr int feature_rows = 3;
 std::vector<int> data_class = { 10,10 };
 std::string path = "../data/fisher-example";
-// k折交叉验证
-constexpr int K = 10;
 
 std::vector<uranus::Vector<feature_rows>> mean;
 std::vector<uranus::SquareMatrix<feature_rows>> Si;
 uranus::SquareMatrix<feature_rows> Sw;
 
-
 constexpr int Dim = feature_rows;
 
 uranus::SquareMatrix<Dim> Si_1;
 uranus::SquareMatrix<Dim> Si_2;
-
-void Evaluation(const uranus::Vector<1> W0,
-				const std::vector<uranus::Vector<1>>& set)
-{
-	size_t size = set.size();
-	double P = 0, N = 0;
-	for (int i = 0; i < size; ++i)
-	{
-		double sub = set[i](0) - W0(0);
-		if (sub > 0)
-			P++;
-		else
-			N++;
-	}
-	double rate = (P / size) > (N / size) ? (P / size) : (N / size);
-	
-	std::cout << "rate:" << rate*100 << "% \n";
-}
 
 int main(int argc, char *argv[])
 {

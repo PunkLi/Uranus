@@ -22,13 +22,20 @@
 
 #define W0_(str1, str2)    W0_##str1##str2
 
-/*
-template<int Dim> class Fisher
+void Evaluation(const uranus::Vector<1> W0,
+	const std::vector<uranus::Vector<1>>& set)
 {
-	// Projection method
-	void projection (uranus::Vector<feature_rows> set)
+	size_t size = set.size();
+	double P = 0, N = 0;
+	for (int i = 0; i < size; ++i)
 	{
-
+		double sub = set[i](0) - W0(0);
+		if (sub > 0)
+			P++;
+		else
+			N++;
 	}
-};
-*/
+	double rate = (P / size) > (N / size) ? (P / size) : (N / size);
+
+	std::cout << "rate:" << rate * 100 << "% \n";
+}
