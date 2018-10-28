@@ -193,6 +193,5 @@ int main(int argc, char *argv[])
 		Evaluation(Wo, D1);
 		Evaluation(Wo, D2);
 	}
-	cin.get();
 	return EXIT_SUCCESS;
 }

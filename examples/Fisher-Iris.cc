@@ -298,6 +298,5 @@ int main(int argc, char *argv[])
 		Evaluation(W0_(mean_1, mean_2), D6);
 		*/
 	}
-	cin.get();
 	return EXIT_SUCCESS;
 }
