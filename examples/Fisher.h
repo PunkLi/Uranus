@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef _URANUS_FISHER_H_
+#define _URANUS_FISHER_H_
+
 #include <vector>
 #include "uranus/Matrix.hpp"
 
@@ -22,6 +25,23 @@
 
 #define W0_(str1, str2)    W0_##str1##str2
 
+template<int dim>
+bool Multi_Discriminant(uranus::Vector<dim> plane_argW_1,
+			   			uranus::Vector<dim> plane_argW_2,
+						uranus::Vector<1> plane_W0_1,
+						uranus::Vector<1> plane_W0_2,
+						uranus::Vector<dim> var_x)
+{
+	uranus::Vector<dim> W = plane_argW_1 - plane_argW_2;
+	double Wo = plane_W0_1(0) - plane_W0_2(0);
+	uranus::Vector<1> Wx = W.transpose() * var_x;
+	double result = Wx(0) + Wo;
+	if (result > 0)
+		return true;
+	else
+		return false;
+};
+
 void Evaluation(const uranus::Vector<1> W0,
 	const std::vector<uranus::Vector<1>>& set)
 {
@@ -39,3 +59,5 @@ void Evaluation(const uranus::Vector<1> W0,
 
 	std::cout << "rate:" << rate * 100 << "% \n";
 }
+
+#endif // _URANUS_FISHER_H_
