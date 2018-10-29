@@ -8,8 +8,6 @@
 #include <vector>
 #include "uranus/Tensor.hpp"
 #include "Fisher.h"
-#include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
 
 constexpr int feature_rows = 60;
 constexpr int Dim = feature_rows;
@@ -46,7 +44,7 @@ int main(int argc, char *argv[])
 	uranus::Vector<feature_rows> mean_0, mean_1;
 	uranus::SquareMatrix<Dim> Sw;
 	uranus::SquareMatrix<Dim> Sw_bayes;
-	
+
 
 	constexpr int K = 2;
 	for (int try_n = 0; try_n < 1; ++try_n)
@@ -61,7 +59,7 @@ int main(int argc, char *argv[])
 			test_x1 = tensor_x1[1];
 			test_x2 = tensor_x2[1];
 
-// step1 均值向量
+			// step1 均值向量
 			mean_0 = data.get_mean(train_x1);
 			mean_1 = data.get_mean(train_x2);
 
@@ -78,8 +76,8 @@ int main(int argc, char *argv[])
 				//cout << "Si_2=\n" << Si_2 << endl << endl;
 			}
 
-// step3
-			// 总样本类内离散度矩阵Sw  对称半正定矩阵，而且当n>d时通常是非奇异的
+			// step3
+						// 总样本类内离散度矩阵Sw  对称半正定矩阵，而且当n>d时通常是非奇异的
 			Sw = Si_1 + Si_2;
 			Sw_bayes = c1 * Si_1 + c2 * Si_2;
 			//cout << "Sw=\n" << Sw << endl << endl;
@@ -94,41 +92,47 @@ int main(int argc, char *argv[])
 		std::vector<uranus::Vector<1>> D2(test_x2.size());
 		cout << "\n";
 
-// step4
-		// 样本类间离散度矩阵SB
+		// step4
+				// 样本类间离散度矩阵SB
 		init_Sb_(Dim, mean_0, mean_1);
 
 		//cout << "Sb=\n" << Sb_(mean_0, mean_1) << endl << endl;
-		
+
 		uranus::SquareMatrix<Dim> A = Sw.inverse()*Sb_(mean_0, mean_1);
-
 		Eigen::EigenSolver<uranus::SquareMatrix<Dim>> eigen_solver(A);
+
 		Eigen::VectorXcd evals = eigen_solver.eigenvalues();
-		//cout << "\n eigen = " << evals << "\n";
-		Eigen::VectorXd evalsReal = evals.real(); // 获取特征值实数部分
-		Eigen::VectorXd evalsimag = evals.imag();
+		Eigen::MatrixXcd eigenvect = eigen_solver.eigenvectors();
 
-		//cout << "\n eigen real = \n" << evalsReal << "\n";
-		//cout << "\n eigen imag = \n" << evalsimag << "\n";
-
-		std::vector<double> eigenval;
-
+		std::vector<std::pair<int, std::complex<double>>> eigenval; //  i, val[i] 
 		for (int i = 0; i < Dim; ++i)
-			if (evalsimag(i) == 0) eigenval.push_back(evalsReal(i));
+			eigenval.push_back(make_pair(i, evals(i)));
 
-		std::sort(eigenval.begin(), eigenval.end(), [](double lhs, double rhs) {return lhs > rhs; });
-		//cout << "real:" << eigenval.size() << endl;;
-		//for (int i = 0; i < eigenval.size(); ++i)
-		//	cout << eigenval[i] << endl;
+		std::sort(
+			eigenval.begin(),
+			eigenval.end(),
+			[](std::pair<int, std::complex<double>> lhs,
+				std::pair<int, std::complex<double>> rhs)
+		{
+			return lhs.second.real() > rhs.second.real();
+		}
+		);
+		constexpr int dim = 1;
 
-		Eigen::MatrixXcd eigenvect = eigen_solver.eigenvectors(); 
-		Eigen::MatrixXd eigenvectReal = eigenvect.real();
-		Eigen::MatrixXf::Index eigenvectMax;
-		eigenvectReal.rowwise().sum().maxCoeff(&eigenvectMax);
-		uranus::Vector<Dim> q;
-		for (int i = 0; i < Dim; ++i)
-			q(i) = eigenvectReal(i, eigenvectMax); // [60x1]
+		Eigen::Matrix<std::complex < double>, Dim, dim> eigen_Wc;
+
+		for (int i = 0; i < 1; ++i)
+			eigen_Wc.col(i) = eigenvect.col(eigenval[i].first);
+
+		cout << "\n eigen =\n" << evals << "\n";
+		cout << "\n eigenvector =\n" << eigenvect << "\n";
+		cout << "\n eigen_Wc =\n" << eigen_Wc << "\n";
+
 		
+		Eigen::Matrix<double, Dim, dim> eigen_W = eigen_Wc.real(); // 投影矩阵
+
+		cout << "\n eigen_W =\n" << eigen_W << "\n";
+
 // step5
 		// Fisher准则函数 -- 最佳投影方向
 		// uranus::SquareMatrix<Dim> Jw = Sb*Sw.inverse();
@@ -150,7 +154,7 @@ int main(int argc, char *argv[])
 			- static_cast<uranus::Vector<1>>(Inw);
 		cout << "Bayes W0 = " << Wo << endl;
 
-// step7线性变换
+		// step7线性变换
 		for (int i = 0; i < test_x1.size(); ++i)
 			D1[i] = argW_(mean_0, mean_1).transpose()*test_x1[i];
 
@@ -174,16 +178,16 @@ int main(int argc, char *argv[])
 		cout << "\n贝叶斯投影 传统判别:\n";
 		Evaluation(W0_(mean_0, mean_1), D1);
 		Evaluation(W0_(mean_0, mean_1), D2);
-		
+
 		cout << "\n贝叶斯投影 贝叶斯判别:\n";
 		Evaluation(Wo, D1);
 		Evaluation(Wo, D2);
 		cout << "\n---------------------------------\n";
 		for (int i = 0; i < test_x1.size(); ++i)
-			D1[i] = q.transpose()*test_x1[i];
+			D1[i] = eigen_W.transpose()*test_x1[i];
 
 		for (int i = 0; i < test_x2.size(); ++i)
-			D2[i] = q.transpose()*test_x2[i];
+			D2[i] = eigen_W.transpose()*test_x2[i];
 
 		cout << "\n特征值投影 传统判别:\n";
 		Evaluation(W0_(mean_0, mean_1), D1);
@@ -193,5 +197,6 @@ int main(int argc, char *argv[])
 		Evaluation(Wo, D1);
 		Evaluation(Wo, D2);
 	}
+	
 	return EXIT_SUCCESS;
 }

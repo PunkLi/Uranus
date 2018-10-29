@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef _FUNCTION_HPP_
-#define _FUNCTION_HPP_
+#ifndef _URANUS_FUNCTION_HPP_
+#define _URANUS_FUNCTION_HPP_
 
 #include "Matrix.hpp"
 
@@ -85,4 +85,4 @@ namespace uranus {
 
 }
 
-#endif
+#endif // _URANUS_FUNCTION_HPP_

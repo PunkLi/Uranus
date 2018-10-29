@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 			if (res)p++;
 			else n++;
 		}
-		cout << "\n\n\n 准确率：" << "p = " << p << "\t n = " << n << "\t size = " << DD1.size() << "\n\n\n";
+		cout << "\n 准确率：" << "p = " << p << "\t n = " << n << "\t size = " << DD1.size() << "\n";
 
 		p = 0.0, n = 0.0;
 		for (int i = 0; i < DD2.size(); ++i)
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
 			if (res)p++;
 			else n++;
 		}
-		cout << "\n\n\n 准确率：" << "p = " << p << "\t n = " << n << "\t size = " << DD2.size() << "\n\n\n";
+		cout << "\n 准确率：" << "p = " << p << "\t n = " << n << "\t size = " << DD2.size() << "\n";
 
 		p = 0.0, n = 0.0;
 		for (int i = 0; i < DD3.size(); ++i)
@@ -246,57 +246,7 @@ int main(int argc, char *argv[])
 			if (res)p++;
 			else n++;
 		}
-		cout << "\n\n\n 准确率：" << "p = " << p << "\t n = " << n << "\t size = " << DD3.size() << "\n\n\n";
-	
-/*
-// step6求阈值 W0 
-		init_W0_(Dim, mean_0, mean_1);
-		init_W0_(Dim, mean_0, mean_2);
-		init_W0_(Dim, mean_1, mean_2);
-		// cout << "Wo=\n" << W0_(mean_0, mean_1) << endl << endl;
-
-		// step7线性变换
-		std::vector<uranus::Vector<1>> D1(test_x1.size());
-		std::vector<uranus::Vector<1>> D2(test_x1.size());
-		std::vector<uranus::Vector<1>> D3(test_x2.size());
-		std::vector<uranus::Vector<1>> D4(test_x2.size());
-		std::vector<uranus::Vector<1>> D5(test_x3.size());
-		std::vector<uranus::Vector<1>> D6(test_x3.size());
-
-#pragma omp parallel
-		{
-#pragma omp for
-			for (int i = 0; i < test_x1.size(); ++i)
-			{
-				D1[i] = argW_(mean_0, mean_1).transpose()*test_x1[i];
-				D2[i] = argW_(mean_0, mean_2).transpose()*test_x1[i];
-			}
-#pragma omp for
-			for (int i = 0; i < test_x2.size(); ++i)
-			{
-				D3[i] = argW_(mean_0, mean_1).transpose()*test_x2[i];
-				D4[i] = argW_(mean_1, mean_2).transpose()*test_x2[i];
-			}
-#pragma omp for
-			for (int i = 0; i < test_x3.size(); ++i)
-			{
-				D5[i] = argW_(mean_0, mean_2).transpose()*test_x3[i];
-				D6[i] = argW_(mean_1, mean_2).transpose()*test_x3[i];
-			}
-		}
-		/*
-		cout << "\ntest for class1: \n";
-		Evaluation(W0_(mean_0, mean_1), D1);
-		Evaluation(W0_(mean_0, mean_2), D2);
-
-		cout << "\ntest for class2: \n";
-		Evaluation(W0_(mean_0, mean_1), D3);
-		Evaluation(W0_(mean_1, mean_2), D4);
-
-		cout << "\ntest for class3: \n";
-		Evaluation(W0_(mean_0, mean_2), D5);
-		Evaluation(W0_(mean_1, mean_2), D6);
-		*/
+		cout << "\n 准确率：" << "p = " << p << "\t n = " << n << "\t size = " << DD3.size() << "\n";
 	}
 	return EXIT_SUCCESS;
 }

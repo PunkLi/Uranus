@@ -19,6 +19,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#ifndef _URANUS_TENSOR_HPP_
+#define _URANUS_TENSOR_HPP_
+
 #include <iostream>
 #include <random>
 
@@ -187,11 +190,11 @@ namespace uranus
 					x_set[1].push_back(this->tensor[index][i]);  // one test sample
 			}
 			if (visual) {
-				std::cout << "\n------Leave one out Validation------\n\n" 
-						  << "Rand idx:" << rand
-						  << "\t trian_set size: " << x_set[0].size() << "\t"
-						  << "test_set size: " << x_set[1].size()
-						  << "\n\n-----------------------------------\n";
+				std::cout << "\n------Leave one out Validation------\n\n"
+					<< "Rand idx:" << rand
+					<< "\t trian_set size: " << x_set[0].size() << "\t"
+					<< "test_set size: " << x_set[1].size()
+					<< "\n\n-----------------------------------\n";
 			}
 			return x_set;
 		}
@@ -206,7 +209,7 @@ namespace uranus
 		{
 			if (visual)
 				std::cout << "\n------" << const_K << "-fold cross Validation------\n";
-				
+
 			const int total = vec_size[index];
 			const int batch_size = vec_size[index] / const_K;
 			const int last_batch_idx = (const_K - 1)*batch_size;
@@ -220,7 +223,7 @@ namespace uranus
 
 			bool isHit = false;
 			int rand_idxTable, idx_k = 0, has_hit = 0, test_size = 0;
-			
+
 			for (int i = 0; i < total; ++i)
 			{
 				do {
@@ -242,23 +245,23 @@ namespace uranus
 						goto double_break; // break do{...}while, then break for{...}
 					}
 					rand_idxTable = uniform_intx(0, total - 1);
-					isHit = *(hit_table + rand_idxTable);       
-					if (!isHit) 
+					isHit = *(hit_table + rand_idxTable);
+					if (!isHit)
 						if (++has_hit >= total) break;
 				} while (isHit);
 
 				*(hit_table + rand_idxTable) = true;
-				if (visual) 
+				if (visual)
 					std::cout //<< i << ": "
-							  << rand_idxTable << "\t";
+					<< rand_idxTable << "\t";
 
 				if ((i + 1) % batch_size == 0) // 取下一个k折
 				{
 					idx_k++;
-					if (visual) std::cout <<"k-fold of "<< idx_k << std::endl;
+					if (visual) std::cout << "k-fold of " << idx_k << std::endl;
 				}
 				x_set[0].push_back(this->tensor[index][rand_idxTable]);
-			} 
+			}
 		double_break: // test set
 			for (int i = 0; i < test_size; ++i)
 			{
@@ -268,11 +271,11 @@ namespace uranus
 				x_set[1].push_back(this->tensor[index][idx_rand]);  // last batch 
 			}
 			if (visual) {
-				std::cout << "k-fold of "<< ++idx_k
-						  <<"\n-----------------------------------\n"
-						  << "trian_set size: " << x_set[0].size() << "\n"
-						  << "test_set size: " << x_set[1].size()
-						  << "\n-----------------------------------\n";
+				std::cout << "k-fold of " << ++idx_k
+					<< "\n-----------------------------------\n"
+					<< "trian_set size: " << x_set[0].size() << "\n"
+					<< "test_set size: " << x_set[1].size()
+					<< "\n-----------------------------------\n";
 			}
 			return x_set; // 分成k折的vector<sampleType> 类型 Tensor
 		}
@@ -287,7 +290,7 @@ namespace uranus
 			return vector_mean / batch_size;
 		}
 	private:
-		
+
 		/**
 		 * @brief generate random number int [a,b]
 		 * @param  low bounder a
@@ -351,3 +354,5 @@ namespace uranus
 	};
 
 }
+
+#endif // _URANUS_TENSOR_HPP_
