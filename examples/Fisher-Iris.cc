@@ -212,14 +212,14 @@ int main(int argc, char *argv[])
 							plane_argW_13 = plane_Sw.inverse()*(DD1_mean - DD3_mean),
 							plane_argW_23 = plane_Sw.inverse()*(DD2_mean - DD3_mean);
 
-		uranus::Vector<1> plane_W0_12 = plane_argW_12.transpose()*(DD1_mean) / 2
-									  + plane_argW_12.transpose()*(DD2_mean) / 2,
+		uranus::Vector<1> plane_W0_12 = plane_argW_12.transpose()*(DD1_mean) / 2.0
+									  + plane_argW_12.transpose()*(DD2_mean) / 2.0,
 
-						  plane_W0_13 = plane_argW_13.transpose()*(DD1_mean) / 2
-							 		  + plane_argW_13.transpose()*(DD3_mean) / 2,
+						  plane_W0_13 = plane_argW_13.transpose()*(DD1_mean) / 2.0
+							 		  + plane_argW_13.transpose()*(DD3_mean) / 2.0,
 
-						  plane_W0_23 = plane_argW_23.transpose()*(DD2_mean) / 2
-									  + plane_argW_23.transpose()*(DD3_mean) / 2; // 考虑一下贝叶斯
+						  plane_W0_23 = plane_argW_23.transpose()*(DD2_mean) / 2.0
+									  + plane_argW_23.transpose()*(DD3_mean) / 2.0; // 考虑一下贝叶斯
 
 		double p = 0.0, n = 0.0;
 		for (int i = 0; i < DD1.size(); ++i)
