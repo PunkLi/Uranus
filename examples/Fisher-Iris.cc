@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 	uranus::Vector<Dim> mean_t3;// = data.get_mean(test_x3);
 
 	double Sw_norm = 0;
-	for (int try_n = 0; try_n < 10; ++try_n)
+	for (int try_n = 0; try_n < 1; ++try_n)
 	{
 		for (int step = 0; step < 1; ++step)
 		{

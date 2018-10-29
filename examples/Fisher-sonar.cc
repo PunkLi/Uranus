@@ -149,9 +149,10 @@ int main(int argc, char *argv[])
 		cout << "Wo=\n" << W0_(mean_0, mean_1) << endl << endl;
 		// bayes判别
 		double Inw = log(In_omega) / log(E);
+		uranus::Vector<1> _ImW_;
+		_ImW_ << Inw;
 		//cout << "Inw:" << Inw << "\n";
-		uranus::Vector<1> Wo = (mean_0 + mean_1).transpose()*Sw.inverse()*(mean_0 - mean_1)
-			- static_cast<uranus::Vector<1>>(Inw);
+		uranus::Vector<1> Wo = (mean_0 + mean_1).transpose()*Sw.inverse()*(mean_0 - mean_1) - _Inw_;
 		cout << "Bayes W0 = " << Wo << endl;
 
 		// step7线性变换
