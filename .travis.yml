@@ -34,15 +34,15 @@ install:
   - sudo make install
   - cd ../../
 
-  - tar -jxvf hdf5-1.10.4.tar.bz2
-  - cd hdf5-1.10.4/
-  - mkdir build && cd build
-  - ./../configure
-  - make
-  - make check
-  - make install
-  - cd ../../
-  
+#  - tar -jxvf hdf5-1.10.4.tar.bz2
+#  - cd hdf5-1.10.4/
+#  - mkdir build && cd build
+#  - ./../configure
+#  - make
+#  - make check
+#  - make install
+#  - cd ../../
+
 script:
   - mkdir build && cd build
   - cmake ..
