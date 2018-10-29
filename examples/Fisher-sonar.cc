@@ -124,14 +124,13 @@ int main(int argc, char *argv[])
 		for (int i = 0; i < 1; ++i)
 			eigen_Wc.col(i) = eigenvect.col(eigenval[i].first);
 
-		cout << "\n eigen =\n" << evals << "\n";
-		cout << "\n eigenvector =\n" << eigenvect << "\n";
-		cout << "\n eigen_Wc =\n" << eigen_Wc << "\n";
+		//cout << "\n eigen =\n" << evals << "\n";
+		//cout << "\n eigenvector =\n" << eigenvect << "\n";
+		//cout << "\n eigen_Wc =\n" << eigen_Wc << "\n";
 
-		
 		Eigen::Matrix<double, Dim, dim> eigen_W = eigen_Wc.real(); // 投影矩阵
 
-		cout << "\n eigen_W =\n" << eigen_W << "\n";
+		//cout << "\n eigen_W =\n" << eigen_W << "\n";
 
 // step5
 		// Fisher准则函数 -- 最佳投影方向
@@ -149,10 +148,12 @@ int main(int argc, char *argv[])
 		cout << "Wo=\n" << W0_(mean_0, mean_1) << endl << endl;
 		// bayes判别
 		double Inw = log(In_omega) / log(E);
-		uranus::Vector<1> _ImW_;
-		_ImW_ << Inw;
+
+		uranus::Vector<1> _InW_;
+		_InW_ << Inw;
 		//cout << "Inw:" << Inw << "\n";
-		uranus::Vector<1> Wo = (mean_0 + mean_1).transpose()*Sw.inverse()*(mean_0 - mean_1) - _Inw_;
+		uranus::Vector<1> Wo = (mean_0 + mean_1).transpose()*Sw.inverse()*(mean_0 - mean_1) - _InW_;
+
 		cout << "Bayes W0 = " << Wo << endl;
 
 		// step7线性变换
@@ -198,6 +199,6 @@ int main(int argc, char *argv[])
 		Evaluation(Wo, D1);
 		Evaluation(Wo, D2);
 	}
-	
+
 	return EXIT_SUCCESS;
 }
