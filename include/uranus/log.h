@@ -66,6 +66,7 @@ namespace uranus {
 			FLAGS_stderrthreshold = google::WARNING;
 			FLAGS_colorlogtostderr = true;
 			FLAGS_v = 3;
+			FLAGS_log_dir="../log/";
 			google::InstallFailureSignalHandler();
 		}
 
