@@ -30,6 +30,7 @@
 #include <cmath>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
+
 namespace uranus
 {
 	const int Dynamic = Eigen::Dynamic;
@@ -84,24 +85,20 @@ namespace uranus
 			return false;
 	}
 
-	/*Eigen::MatrixXcd evals = eigen_solver.eigenvectors();        // 特征值
-	Eigen::MatrixXf::Index evalsMax;
-	evalsReal.rowwise().sum().maxCoeff(&evalsMax);//得到最大特征值的位置
-
-	Eigen::MatrixXf::Index evalsMin;
-	evalsReal.rowwise().sum().minCoeff(&evalsMin);//得到最大特征值的位置
-
-	uranus::Vector<Dim> q; //得到对应特征向量
-
-	q << evals.real()(0, evalsMax), 
-		 evals.real()(1, evalsMax), 
-		 evals.real()(2, evalsMax), 
-		 evals.real()(3, evalsMax);*/
-
-	/*Eigen::MatrixXcd evals = eigen_solver.eigenvalues(); // 伪特征值
-	cout << "\n eigen = " << evals << "\n";
-	Eigen::MatrixXd evalsReal = evals.real();//获取特征值实数部分
-	cout << "\n eigen = " << evalsReal << "\n";*/
+	/**
+	 * @brief calu N dim Norm number
+	 * @param Type the input template
+	 * @param N The dimensionality of vector or SquareMatrix
+	 */
+	template<typename Type, int N>
+	double Norm(const Type& lhs, const Type& rhs) 
+	{
+		double _exp = 1.0 / N;
+		double sum = 0;
+		for (size_t i = 0; i < N; ++i)
+			sum += pow(std::abs(lhs(i) - rhs(i)), N);
+		return pow(sum, _exp);
+	}
 }
 
 #endif // _URANUS_MATRIX_HPP_

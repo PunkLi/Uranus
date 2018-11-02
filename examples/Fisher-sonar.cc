@@ -9,39 +9,37 @@
 #include "uranus/Tensor.hpp"
 #include "Fisher.h"
 
-constexpr int feature_rows = 60;
-constexpr int Dim = feature_rows;
+constexpr int Dim = 60;
 
 std::vector<int> data_class = { 97,111 };
 
 std::string path = "../data/sonar.all-data";
 
-std::vector<uranus::Vector<feature_rows>> mean;
-uranus::SquareMatrix<feature_rows> Si_1;
-uranus::SquareMatrix<feature_rows> Si_2;
-uranus::SquareMatrix<feature_rows> Sw;
+uranus::SquareMatrix<Dim> Si_1;
+uranus::SquareMatrix<Dim> Si_2;
+uranus::SquareMatrix<Dim> Sw;
 
 int main(int argc, char *argv[])
 {
 	using namespace std;
-	using sample_set = uranus::Tensor<feature_rows>::sample_set;
-	using tensor = uranus::Tensor<feature_rows>::TensorType;
+	using sample_set = uranus::Tensor<Dim>::sample_set;
+	using tensor = uranus::Tensor<Dim>::TensorType;
 
 	constexpr double E = 2.718282;
 	constexpr double In_omega = 97.0 / 111.0;
 	constexpr double c1 = 97.0 / 208;
 	constexpr double c2 = 111.0 / 208;
-	uranus::Data_Wrapper<feature_rows> wrapper(path, data_class);
-	uranus::Tensor<feature_rows> data(wrapper, data_class);
+	uranus::Data_Wrapper<Dim> wrapper(path, data_class);
+	uranus::Tensor<Dim> data(wrapper, data_class);
 
-	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_1);
-	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_2);
+	uranus::setZero<uranus::SquareMatrix<Dim>, Dim>(Si_1);
+	uranus::setZero<uranus::SquareMatrix<Dim>, Dim>(Si_2);
 
 	tensor tensor_x1;
 	tensor tensor_x2;
 
 	sample_set train_x1, train_x2, test_x1, test_x2;
-	uranus::Vector<feature_rows> mean_0, mean_1;
+	uranus::Vector<Dim> mean_0, mean_1;
 	uranus::SquareMatrix<Dim> Sw;
 	uranus::SquareMatrix<Dim> Sw_bayes;
 
@@ -139,7 +137,7 @@ int main(int argc, char *argv[])
 
 		// 方法一
 		init_argW_(Dim, mean_0, mean_1);
-		uranus::Vector<feature_rows> argW_bayes = Sw.inverse()*(mean_0 - mean_1);
+		uranus::Vector<Dim> argW_bayes = Sw.inverse()*(mean_0 - mean_1);
 		//cout << "argW=\n" << argW_(mean_0, mean_1) << endl << endl;
 
 // step6求阈值 W0 

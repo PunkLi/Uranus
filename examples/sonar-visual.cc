@@ -23,18 +23,15 @@ std::string ConvertToString(T value)
 
 constexpr double E = 2.718282;
 
-constexpr int feature_rows = 60;
-constexpr int Dim = feature_rows;
+constexpr int Dim = 60;
 constexpr int dim = 1;
 std::vector<int> data_class = { 97,111 };
 
 std::string path = "../data/sonar.all-data";
 
-std::vector<uranus::Vector<feature_rows>> mean;
-uranus::SquareMatrix<feature_rows> Si_1;
-uranus::SquareMatrix<feature_rows> Si_2;
-uranus::SquareMatrix<feature_rows> Sw;
-
+uranus::SquareMatrix<Dim> Si_1;
+uranus::SquareMatrix<Dim> Si_2;
+uranus::SquareMatrix<Dim> Sw;
 
 int main(int argc, char *argv[])
 {
@@ -42,11 +39,11 @@ int main(int argc, char *argv[])
 	constexpr int draw_cond_x_scale = 640 / step_size;
 	// init
 	using namespace std;
-	using sample_set = uranus::Tensor<feature_rows>::sample_set;
-	using tensor = uranus::Tensor<feature_rows>::TensorType;
+	using sample_set = uranus::Tensor<Dim>::sample_set;
+	using tensor = uranus::Tensor<Dim>::TensorType;
 
-	uranus::Data_Wrapper<feature_rows> wrapper(path, data_class);
-	uranus::Tensor<feature_rows> data(wrapper, data_class);
+	uranus::Data_Wrapper<Dim> wrapper(path, data_class);
+	uranus::Tensor<Dim> data(wrapper, data_class);
 
 	tensor tensor_x1, tensor_x2;
 
@@ -121,8 +118,8 @@ int main(int argc, char *argv[])
 		mean_total = mean_1 / 2 + mean_2 / 2;  // train mean
 
 		// step2 类内离散度矩阵
-		uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_1);
-		uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_2);
+		uranus::setZero<uranus::SquareMatrix<Dim>, Dim>(Si_1);
+		uranus::setZero<uranus::SquareMatrix<Dim>, Dim>(Si_2);
 #pragma omp parallel
 		{
 #pragma omp for

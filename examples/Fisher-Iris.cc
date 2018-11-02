@@ -9,32 +9,30 @@
 #include "uranus/Tensor.hpp"
 #include "Fisher.h"
 
-constexpr int feature_rows = 4;
-constexpr int Dim = feature_rows;
+constexpr int Dim = 4;
 
 std::vector<int> data_class = { 50,50,50 };
 
 std::string path = "../data/iris.data";
 
-std::vector<uranus::Vector<feature_rows>> mean;
-uranus::SquareMatrix<feature_rows> Si_1;
-uranus::SquareMatrix<feature_rows> Si_2;
-uranus::SquareMatrix<feature_rows> Si_3;
-uranus::SquareMatrix<feature_rows> Sw;
+uranus::SquareMatrix<Dim> Si_1;
+uranus::SquareMatrix<Dim> Si_2;
+uranus::SquareMatrix<Dim> Si_3;
+uranus::SquareMatrix<Dim> Sw;
 
 int main(int argc, char *argv[])
 {
 	using namespace std;
 
-	using sample_set = uranus::Tensor<feature_rows>::sample_set;
-	using tensor = uranus::Tensor<feature_rows>::TensorType;
+	using sample_set = uranus::Tensor<Dim>::sample_set;
+	using tensor = uranus::Tensor<Dim>::TensorType;
 
-	uranus::Data_Wrapper<feature_rows> wrapper(path, data_class);
-	uranus::Tensor<feature_rows> data(wrapper, data_class);
+	uranus::Data_Wrapper<Dim> wrapper(path, data_class);
+	uranus::Tensor<Dim> data(wrapper, data_class);
 
-	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_1);
-	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_2);
-	uranus::setZero<uranus::SquareMatrix<feature_rows>, feature_rows>(Si_3);
+	uranus::setZero<uranus::SquareMatrix<Dim>, Dim>(Si_1);
+	uranus::setZero<uranus::SquareMatrix<Dim>, Dim>(Si_2);
+	uranus::setZero<uranus::SquareMatrix<Dim>, Dim>(Si_3);
 
 	tensor tensor_x1, tensor_x2, tensor_x3;
 	uranus::SquareMatrix<Dim> Sw;
