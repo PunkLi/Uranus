@@ -1,5 +1,0 @@
-<map id="TEST" name="TEST">
-<area shape="rect" id="node2" href="$classuranus_1_1_function.html#a23847145aefea05f4d3184a0922592ff" title="uranus::Function::Solve\l_by_Newton" alt="" coords="108,23,267,65"/>
-<area shape="rect" id="node3" href="$classuranus_1_1_function.html#a747e480ad573c684e1b452de908402ef" title="uranus::Function::Hessian_inv" alt="" coords="315,5,511,32"/>
-<area shape="rect" id="node4" href="$classuranus_1_1_function.html#a770f8b0653c823fc1e24c7962fcc38f3" title="uranus::Function::Jacobian" alt="" coords="323,56,502,83"/>
-</map>
