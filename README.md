@@ -35,14 +35,16 @@ cmake ..
 make
 ```
 ## Documents
-克隆代码仓库，打开 `html/index.html` 查看[Doxygen](http://www.doxygen.org/)自动生成的代码文档。
-
-如果你要自定义构建文档，需要以下组件：
+构建/自定义[Doxygen](http://www.doxygen.org/)文档，需要以下组件：
 - Doxygen
 - GraphViz
 - Html Help
 
-其他文档会陆续给出，以算法原理为主。
+查看由[Doxygen](http://www.doxygen.org/)自动生成的代码文档：
+```shell
+doxygen .\Doxyfile
+```
+其他文档在仓库文件夹：[Uranus/docs/](https://github.com/hackath/Uranus/tree/master/docs)
 
 ## License
 
