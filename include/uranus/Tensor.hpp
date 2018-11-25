@@ -177,6 +177,22 @@ namespace uranus
 		 * @param visual option
 		 * @return Tensor::TensorType x_set {{train},{test}}
 		 */
+		TensorType getDataformTensor(const int index, bool visual = false)
+		{
+			TensorType x_set;
+			int total = vec_size[index];
+			for (int i = 0; i < total; ++i)
+			{
+				x_set.push_back(this->tensor[index][i]);  // one test sample
+			}
+			return x_set;
+		}
+		/**
+		 * @brief leave-one-out cross validation
+		 * @param index of vector of class, such as vec[0] as {50} in {50,50,50}
+		 * @param visual option
+		 * @return Tensor::TensorType x_set {{train},{test}}
+		 */
 		TensorType leave_one_out_validation(const int index, bool visual = false)
 		{
 			TensorType x_set(2);
