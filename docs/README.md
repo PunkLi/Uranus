@@ -12,3 +12,12 @@
 - 数据存储：https://developers.google.com/protocol-buffers/
 - 单元测试：https://github.com/google/googletest.git
 - 集成测试：https://travis-ci.org/
+
+## Some Pic
+以下仅仅是项目需求分析，与项目具体内容代码关联不大。
+
+![](pic/pic1.png)
+![](pic/pic2.png)
+![](pic/pic3.png)
+![](pic/pic4.png)
+![](pic/pic5.png)
