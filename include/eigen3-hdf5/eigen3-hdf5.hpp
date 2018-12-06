@@ -176,7 +176,7 @@ struct DatatypeSpecialization<std::complex<T> >
 {
     static inline const H5::DataType * get (void)
         {
-            return ComplexH5Type<T>::get_singleton();
+            return ComplexH5Type<T>::get_singleton();   // 这个模板没太看懂
         }
 };
 
