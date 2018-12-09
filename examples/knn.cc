@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
 	std::cout << "rate3:" << c3 << "\n";
 #endif
 
-	std::cin.get();
 	return EXIT_SUCCESS;
 }
 

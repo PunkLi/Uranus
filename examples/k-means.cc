@@ -30,6 +30,7 @@ std::vector<int> data_class = { 97,111 };
 using sample = uranus::Tensor<Dim>::sampleType;
 using sample_set = uranus::Tensor<Dim>::sample_set;
 using tensor = uranus::Tensor<Dim>::TensorType;
+using CP = std::pair<sample, int>;
 
 void kmeans_solver(std::vector<CP> vec_, bool visual = false);
 double Evaluation(std::vector<int> vec, int except);
@@ -62,11 +63,9 @@ int main(int argc, char *argv[])
 
 	kmeans_solver(vec_); // kmeans 无监督、无标签
 
-	std::cin.get();
+	std::cout << "End";
 	return EXIT_SUCCESS;
 }
-
-
 
 void kmeans_solver(std::vector<CP> vec_, bool visual)
 {
@@ -76,13 +75,14 @@ void kmeans_solver(std::vector<CP> vec_, bool visual)
 	sample_set C3; // class3
 
 	sample C1_mean;
-	setZero<sample, Dim>(C1_mean);
+	uranus::setZero<sample, Dim>(C1_mean);
 	sample C2_mean;
-	setZero<sample, Dim>(C2_mean);
+	uranus::setZero<sample, Dim>(C2_mean);
 	sample C3_mean;
-	setZero<sample, Dim>(C3_mean);
+	uranus::setZero<sample, Dim>(C3_mean);
 
-	// step1 -- Init
+	// step1 -- Init	
+again:
 	if(mark)
 	{
 		C1.clear();  // clear
@@ -95,10 +95,10 @@ void kmeans_solver(std::vector<CP> vec_, bool visual)
 	}
 	else  // first -- rand generate center
 	{ 
-    	C1.push_back(vec_[uniform_intx(0,vec_.size())]);
-    	C2.push_back(vec_[uniform_intx(0,vec_.size())]); // 不匹配
+    	C1.push_back(vec_[uniform_intx(0,vec_.size())].first);
+    	C2.push_back(vec_[uniform_intx(0,vec_.size())].first); // 不匹配
 	#ifdef Iris
-    	C3.push_back(vec_[uniform_intx(0,vec_.size())]);
+    	C3.push_back(vec_[uniform_intx(0,vec_.size())].first);
 	#endif
 	}
     
@@ -106,23 +106,23 @@ void kmeans_solver(std::vector<CP> vec_, bool visual)
 	for (size_t idx = 0; idx < vec_.size(); ++idx) // 对 vec_ 的每个样本
 	{
 	// Sonar
-		double res1 = uranus::Norm<sample, Dim>(C1[0], vec_[i].first);
-		double res2 = uranus::Norm<sample, Dim>(C2[0], vec_[i].first);
+		double res1 = uranus::Norm<sample, Dim>(C1[0], vec_[idx].first);
+		double res2 = uranus::Norm<sample, Dim>(C2[0], vec_[idx].first);
 		if(res1 > res2)
-			C2.push_back(vec_[i].first);
+			C2.push_back(vec_[idx].first);
 		else
-			C1.push_back(vec_[i].first);
+			C1.push_back(vec_[idx].first);
 	// Iris
 	#ifdef Iris
-		double res3 = uranus::Norm<sample, Dim>(C3[0], vec_[i].first);
+		double res3 = uranus::Norm<sample, Dim>(C3[0], vec_[idx].first);
 		if(res1 <= res2 && res1 <= res3)
 		{
-			C1.push_back(vec_[i].first);
+			C1.push_back(vec_[idx].first);
 		}
 		else if(res2 <= res1 && res2 <= res3)
-			C2.push_back(vec_[i].first);
+			C2.push_back(vec_[idx].first);
 		else if(res3 <= res1 && res3 <= res2)
-			C3.push_back(vec_[i].first);
+			C3.push_back(vec_[idx].first);
 	#endif
 	}
 
@@ -137,12 +137,13 @@ void kmeans_solver(std::vector<CP> vec_, bool visual)
 #endif
 
 	if (C1_mean != C1[0] || C2_mean != C2[0] || C3_mean != C3[0]) 
-	{	
-	   mark = 1;
+	{
+	   std::cout << "C1 means:"<<mark<<"\n" << C1_mean << std::endl;
+	   mark++;
+	   if(mark > 100) return;
 	   goto again;
 	}
-	else
-	;
+	else ;
 }
 
 double Evaluation(std::vector<int> vec, int except)
