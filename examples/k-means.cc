@@ -15,7 +15,7 @@ int uniform_intx(int a, int b)
 	return u(e, std::uniform_int_distribution<int>::param_type(a, b));
 }
 
-#define Iris
+//#define Iris
 
 #ifdef Iris
 constexpr int Dim = 4;
@@ -33,18 +33,15 @@ using tensor = uranus::Tensor<Dim>::TensorType;
 using CP = std::pair<sample, int>;
 
 void kmeans_solver(std::vector<CP> vec_, bool visual = false);
-double Evaluation(std::vector<int> vec, int except);
+double Evaluation(sample_set test_set, int except_C);
 
 sample_set C1; // class1
 sample_set C2; // class2
 sample_set C3; // class3
 
 sample C1_mean;
-uranus::setZero<sample, Dim>(C1_mean);
 sample C2_mean;
-uranus::setZero<sample, Dim>(C2_mean);
 sample C3_mean;
-uranus::setZero<sample, Dim>(C3_mean);
 
 int main(int argc, char *argv[])
 {
@@ -88,6 +85,10 @@ int main(int argc, char *argv[])
 
 void kmeans_solver(std::vector<CP> vec_, bool visual)
 {
+
+	uranus::setZero<sample, Dim>(C1_mean);
+	uranus::setZero<sample, Dim>(C2_mean);
+	uranus::setZero<sample, Dim>(C3_mean);
 	int mark = 0;
 
 	// step1 -- Init
