@@ -31,61 +31,85 @@
 #include <Eigen/Dense>
 using namespace std;
 
-void Linear_search()
+template<int Dim> struct problem
 {
-	double x_k;
-	double t;
-	double P_k;
-	double x_kk = x_k + t * P_k;   // 迭代
+	using namespace uranus;
+	SquareMatrix<Dim> matirx_Jacobian_;  // 一阶求导矩阵
+	
+	uranus::Vector<Dim> gradient(const uranus::Vector<Dim>& var_x)
+	{
+		return matirx_Jacobian_ * var_x;
+	}
 
-	Eigen::Matrix<double, 3, 3> Jacobian;
+	uranus::Vector<Dim> constrained(uranus::Vector<Dim> var_x)
+	{
+		// 算式；
+	}
+};
 
-	// if (Jacobian.transpose()*P_k == 0);  // 要满足的条件
-
-	// minf(x_k + t*P_k)
-}
-
-// 函数
-double fucntion(Eigen::Matrix<double, 2, 1>& x)
-{
-	return x(0)*x(0) + 4 * x(1)*x(1);
-}
-
-// 传入一个点，计算该点的梯度
-Eigen::Matrix<double, 2, 1> gradient(Eigen::Matrix<double, 2, 1>& x)
-{
-	Eigen::Matrix<double, 2, 2> Jacobian;
-	Jacobian << 2, 0, 0, 8;
-	return Jacobian * x;
-}
-
-double varepsilon = 0.001;
-
+/**
+ * @brief 使用秩为2的模拟牛顿法, BFGS
+ * @param 初始点 var_x,是一个向量，可包含多维
+ * @param 终止条件 delta, 默认 0.001
+ * @param 是否打印中间结果
+ * @return 求解得到的最优点 
+ */
 template<int Dim>
-void steepest_descent()
+uranus::Vector<Dim> BFGS(uranus::Vector<Dim> var_x, 
+						 const double delta = 0.001, 
+						 bool visual)
 {
+	uranus::Vector<Dim> s_k;
+	uranus::Vector<Dim> y_k;
+	uranus::SquareMatrix<Dim> H_k;
+	H_k = MatrixXf::Identity(Dim,Dim);             // init 单位矩阵
+	
+	while(s_k < delta)  
+	{
+		s_k = -H_k * Jacobian(var_x);              // s_k = var_x2 - var_x1
+		y_k = Jacobian(var_x);
+		var_x = var_x - H_k * Jacobian(var_x);     
+		y_k = Jacobian(var_x) - y_k;               // y_k = \delta f_{k} - \delta f_{k-1}
+										      	   // update H_k
+    	H_k = H_k
+		- H_k * y_k * s_k.transpose()
+		+ s_k * y_k.transpose() * H_k / s_k.transpose() * y_k 
+		+ s_k * s_k.transpose() / (s_k.transpose() * y_k) 
+		* (1 + y_k.transpose() * H_k * y_k / s_k.transpose() * y_k);
+	}
+	return var_x; // result
+}
+/**
+ * @brief 使用BFGS的外点法
+ * @param 初始点 var_x,是一个向量，可包含多维
+ * @param 终止条件 delta, 默认 0.001
+ * @param 是否打印中间结果
+ * @return 求解得到的最优点 
+ */
+template<int Dim>
+void External_point_method(uranus::Vector<Dim> var_x, 
+						   const double delta = 0.001, 
+						   const double varepsilon = 0.001, 
+						   const double C = 10;)
+{
+	double M_k = 1;      // init M_k > 0	
+	do{
+		M_k = C * M_k;   // update M_k
+		BFGS(var_x);
+	}
+	while(M_k* h > varepsilon);
+}
 
-	// set 初始点
-	Eigen::Matrix<double, 2, 1> var_x;
-	var_x << 1, 1;
+void init_problem()
+{
+	problem<Dim> f;	  // f = x_1^2 + 4x_2^2
 
-	// step1 求函数
-	double y = fucntion(var_x);、
+	f.matirx_Jacobian_ << 2, 0, 0, 8; 
 
-	do {
-		// step2 求梯度
-		Eigen::Matrix<double, 2, 1> P_k = - gradient(var_x); // p_k = -g , 负梯度方向
+	uranus::Vector<2> x0; 
+	x0 << 1, 1;                   // 初始点
 
-		// step3 求步长 ls(X0, -go)
-		(x_0 + t_k * P_k) ^ T P_k = 0;
-		solver(t_k);                      // 解这个方程
-
-		var_x = var_x + t_k * P_k;        // update x
-
-	} while (g.norm() > varepsilon);      // 梯度的模 > 0.001
-
-	// 打印结果
-	double result = fucntion(var_x);// f = x_1 ^2 + 4* x_2 ^2
+	uranus::Vector<2> result = BFGS<2>(x0); // 用BFGS求解
 }
 
 #endif
