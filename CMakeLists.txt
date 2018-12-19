@@ -51,6 +51,7 @@ if(URANUS_BUILD_EXAMPLES)
     add_executable(example_4 "examples/Fisher-Iris.cc")
     add_executable(example_5 "examples/knn.cc")
     add_executable(example_6 "examples/k-means.cc")
+    add_executable(example_7 "examples/BFGS.cc")
 
     target_link_libraries(example_1 glog)
     target_link_libraries(example_2 glog)
