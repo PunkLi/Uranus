@@ -102,6 +102,7 @@ uranus::Vector<Dim> BFGS(problem<Dim> f,
 				 << "y_k:\n" << y_k << "\n"
 				 << "H_k:\n" << H_k << "\n";
  		}
+<<<<<<< HEAD
 	}
 	return var_x; // result
 }
@@ -128,5 +129,11 @@ void External_point_method(uranus::Vector<Dim> var_x,
 	while(M_k * pow(var_x(1)-1), 2) > delta);
 
 }
+=======
+		 cin.get();
+	}
+	return var_x; // result
+}
+>>>>>>> 37ff8f24c79fe0c3ddf40c99b90e94e3d8d106be
 
 #endif
